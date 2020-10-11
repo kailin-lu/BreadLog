@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div>
+    <h1>Bread Experiment Log</h1>
+</div>
+<div>
+    <p>One easy place to track all of your bread recipe development and experimentation.</p>
+</div>
+<!--Make into three blocks --> 
+    <p>Easy to read entire recipes, no need to scroll through long blog posts or flip through extended book pages</p>
+    <p>Start timers for every step</p>
+    <p>Know when to start baking to have your bread ready in time</p>
+</div>
+<div class="content-form">
+    <form method="POST" action=""> 
+        <!--hidden_tag adds cross site request forgery (csrf) token  --> 
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>Create your first recipe now</legend>
+            <div class="form-group"> 
+                <!--replace bootstrap css class  --> 
+                {{ form.recipe_name.label(class="form-control-label") }}
+                {{ form.recipe_name(class="form-control form-control-lg") }}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline") }}
+        </div>
+    </form>
+</div>
+
+<div class="">
+    <small class="">
+        Already have an account? <!-- Use url_for to add link to login page --> Log in to create and edit your recipes.
+    </small>
+</div>
+
+{% endblock %}
