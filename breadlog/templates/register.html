@@ -1,33 +1,44 @@
 {% extends 'base.html' %}
 
 {% block header %} 
-<h1>Create an account</h1>
+<div class="content-title">
+    <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
+    <br>
+    <h4>CREATE AN ACCOUNT</h4>
+</div>
 {% endblock %}
 
 {% block body %}
 <div class="row">
-    <div class="col-12">
+<div class="col-12 banner">
+    <picture>
+        <source srcset="static/images/bread_raw_small.jpg" media="(max-width: 400px)">
+        <source srcset="static/images/bread_raw.jpg">
+        <img class="banner-thin" src="static/images/bread_raw.jpg" alt="Bread on a table">
+      </picture> 
+</div>
+</div>
+<br>
+<br>
+<div class="row">
+    <div class="col-12 login-form">
         <form method="POST", action="">
             {{ form.hidden_tag() }}
             {{ form.csrf_token }}
             <fieldset>
-                <div>
-                    {{ form.email.label() }}
-                    {{ form.email() }}
-                </div>
-                <div>
-                    {{ form.password.label() }}
-                    {{ form.password() }}
-                </div>
-                <div>
-                    {{ form.confirm_password.label() }}
-                    {{ form.confirm_password() }}  
-                </div>
+                <div class="col-6 form-label">{{ form.email.label() }}</div>
+                <div class="col-6 form-value">{{ form.email() }}</div>
+                <div class="col-6 form-label">{{ form.password.label() }}</div>
+                <div class="col-6 form-value">{{ form.password() }}</div>
+                <div class="col-6 form-label">{{ form.confirm_password.label() }}</div>
+                <div class="col-6 form-value">{{ form.confirm_password() }}</div>
             </fieldset>
+            <br>
             {{ form.submit(class="call-to-action") }}
         </form>
     </div>
 </div>
+<br>
 <div class="row">
     <div class="col-12">
         <p>Already have an account? Log in <a href="{{ url_for('login') }}">here</a>.</p>

@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %} 
-    {% if current_user.is_authenticated %} 
-    <div class="row">
-        <h1>Welcome back, {{ current_user.email }}</h1>
+{% if current_user.is_authenticated %} 
+    <div class="content-title">
+        <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
+        <br>
+        <h4>Welcome back, {{ current_user.email }}</h4>
     </div> 
     {% endif %}
 {% endblock %}

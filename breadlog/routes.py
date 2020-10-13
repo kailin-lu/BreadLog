@@ -1,8 +1,8 @@
 import sys 
-from flask import render_template, url_for, request, redirect, flash
+from flask import render_template, url_for, request, redirect, flash, jsonify
 from breadlog import app, db, bcrypt
 from breadlog.models import Recipe, Step, User
-from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm
+from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm, AddIngredientForm
 from flask_login import login_user, current_user, logout_user
 
 
@@ -114,8 +114,32 @@ def delete_step(step_id):
         return 'Error deleting step'
     return redirect(url_for('edit_recipe', recipe_id=recipe_id)) 
 
+# Add ingredient to step 
+@app.route('/step/<int:step_id>/add_step_ingredient')
+def add_step_ingredient(step_id):
+    form = AddIngredientForm() 
+    
+    
+# Add ingredient to database 
+@app.route('/add_ingredient')
+def add_ingredient(): 
+    pass 
 
 @app.route('/logout')
 def logout(): 
     logout_user() 
     return redirect('/') 
+
+#------ API routes ------# 
+
+# Gets all recipes 
+@app.route('/recipe', methods=['GET'])
+def recipe(): 
+    recipes = Recipe.query.all()
+    return jsonify(recipes)
+
+# Get a recipe by ID 
+@app.route('/recipe/id/<int:recipe_id>', methods=['GET'])
+def recipe_id(recipe_id): 
+    recipe = Recipe.query.filter_by(id=recipe_id).first()
+    return jsonify(recipe)

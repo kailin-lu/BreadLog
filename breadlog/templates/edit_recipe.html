@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
+{% block header %}
+<div class="content-title">
+    <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
+    <br>
+    <h4>EDIT RECIPE</h4>
+</div>
+{% endblock %}
+
 {% block body %}
 <div class="row">
     <div class="col-12">
@@ -17,6 +25,8 @@
             <div class="col-12">
                 <p>Step: {{ step.step_number }} Action: {{ step.action }} Time in Minutes: {{ step.minutes }}</p>
                 <a href="/delete_step/{{ step.id }}">Delete Step</a>
+                <a id="add-ingredients" href="">Add Ingredients</a>
+                <div class="col-12" id="ingredients-list"></div>
             </div>
         {% endfor %}
     {% endif %} 
@@ -53,27 +63,3 @@
 </div>
 
 {% endblock %}
-<!-- 
-<fieldset>
-    <legend class="form-legend">Add a new step</legend>
-    <div class="form-group">
-        {{ form.steps.step_number.label(class="form-control-label") }}
-        {{ form.steps.step_number(class="form-control form-control-lg")}}
-    </div>
-    <div class="form-group">
-        {{ form.steps.action.label(class="form-control-label") }}
-        {{ form.steps.action(class="form-control form-control-lg")}}
-    </div>
-    <div class="form-group">
-        {{ form.steps.minutes.label(class="form-control-label") }}
-        {{ form.steps.minutes(class="form-control form-control-lg")}}
-    </div>
-    <div class="form-group">
-        {{ form.steps.notes.label(class="form-control-label") }}
-        {{ form.steps.notes(class="form-control form-control-lg")}}
-    </div>
-    <div class="form-group">
-        {{ form.steps.submit(class="call-to-action") }}
-    </div>
-</fieldset>   
--->

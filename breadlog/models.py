@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy.dialects.postgresql.base import UUID 
 from breadlog import db, login_manager
 from flask_login import UserMixin
+from dataclasses import dataclass
 import uuid 
 
 db.UUID = UUID 
@@ -10,8 +11,17 @@ db.UUID = UUID
 def load_user(user_id): 
     return User.query.get(user_id) 
 
-
+@dataclass  # Decorator to allow model data to be JSON serializable
 class Recipe(db.Model): 
+    id: int 
+    name: str 
+    total_steps: int
+    total_minutes: int 
+    is_public: bool 
+    created_at: datetime
+    user_id: str
+    steps: list
+        
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     total_steps = db.Column(db.Integer, nullable=False)
@@ -27,11 +37,17 @@ class Recipe(db.Model):
         self.total_minutes = 0 
         self.user_id = user_id
     
-    def __repr__(self): 
-        return f'Recipe: {self.id}  Name: {self.name}'
-
-
+    
+@dataclass
 class Step(db.Model): 
+    id: int 
+    recipe_id: int 
+    step_number: int 
+    action: str 
+    created_at: datetime 
+    minutes: int 
+    notes: str
+        
     id = db.Column(db.Integer, primary_key=True)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)  
     step_number = db.Column(db.Integer, nullable=False)
@@ -47,11 +63,6 @@ class Step(db.Model):
         self.notes = notes 
         self.recipe_id = recipe_id
 
-    def __repr__(self):
-        return f'Step {self.step_number} Total time: {self.minutes} \
-                Action: {self.action} Notes: {self.notes} \
-                Recipe ID: {self.recipe_id}'
-
 
 class Ingredient(db.Model): 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
@@ -63,7 +74,7 @@ class Ingredient(db.Model):
         self.name = name 
 
     def __repr__(self): 
-        pass 
+        return f'Ingredient({self.name})' 
 
 
 class StepIngredient(db.Model): 

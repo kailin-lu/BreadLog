@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField,\
      FormField, FieldList, SubmitField, PasswordField 
 from wtforms.validators import ValidationError, DataRequired, Length, NumberRange, EqualTo
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from breadlog import db
 
 class LoginForm(FlaskForm): 
     email = StringField('Email', validators=[DataRequired(message='Email is required')])
@@ -15,8 +17,17 @@ class RegisterForm(FlaskForm):
                                                                      EqualTo('password', message='confirm passwords not the same')])
     submit = SubmitField('Create Account')
 
-class IngredientForm(FlaskForm): 
-    weight = FloatField('Weight', validators=[NumberRange(min=0, message='Weight must be greater than or equal to 0')])
+
+class AddIngredientForm(FlaskForm): 
+    ingredient = QuerySelectField('Ingredient', 
+                                  validators=[DataRequired()], 
+                                  query_factory=lambda: ingredient_choices)
+    weight = FloatField('Weight', validators=[NumberRange(min=0, message='Weight must be greater than or equal to 0'),
+                                              DataRequired()])
+    
+    def ingredient_choices(): 
+        return db.session.query(Ingredient).order_by(Ingredient.name).all()
+
 
 class StepForm(FlaskForm): 
     action_choices = [
