@@ -1,20 +1,55 @@
 {% extends 'base.html' %}
 
-{% block body %}
-<div>
-    {% if schedule|length < 1 %}
-    <h4>No recipes yet. Create a new one here.</h4> 
-    {% else %}
-    <table>
+{% block header %} 
+    {% if current_user.is_authenticated %} 
+    <div class="row">
+        <h1>Welcome back, {{ current_user.email }}</h1>
+    </div> 
+    {% endif %}
+{% endblock %}
 
-    </table>
-    {% endif %} 
-</div>
-<div class="form">
-    <form action="recipes" method="POST">
-        <input type="text" name="name" id="name">
-        <input type="submit" value="Create">
-    </form>
+{% block body %}
+<div class="row">
+    <!--Sidebar of existing recipes-->
+    <div class="col-4"> 
+        {% if recipes|length < 1 %}
+        <h4>No recipes yet. Try creating a new one.</h4> 
+        {% else %}
+        <h4>Recipes</h4>
+        <table>
+            <tr>
+                <th>Recipe</th>
+                <th>Time in Minutes</th>
+            </tr>
+            {% for recipe in recipes %}
+                <tr>
+                    <td><a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}">{{ recipe.name }}</a></td>
+                    <td>{{ recipe.total_minutes }}</td> 
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    <!--On the right we'll have create new recipe + space to load existing recipe-->
+    <div class="col-8">
+        <div class="col-8">
+            <form method="POST" action=""> <!--action="" means post to the same route we're on-->
+                {{ form.hidden_tag() }} <!--add a CSRF token-->
+                <fieldset>
+                    <div>
+                        {{ form.recipe_name.label(class="form-control-label") }}<!--add classes inside parens-->
+                        {{ form.recipe_name(class="form-control form-control-lg")}}
+                        {{ form.submit(class="call-to-action") }}
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-8">
+            <h3>Here is space for an existing recipe</h3>
+            <p>Some placeholder buttons</p>
+            <a href="">Edit</a><a href="">Delete</a> 
+        </div>
+    </div>
 </div>
 
 {% endblock %} 

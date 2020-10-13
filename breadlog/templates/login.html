@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %} 
+<h1>Account Log In</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <form method="POST", action="">
+            {{ form.hidden_tag() }}
+            {{ form.csrf_token }}
+            <fieldset>
+                {{ form.email.label() }}
+                {{ form.email() }}
+            </fieldset>
+            <fieldset>
+                {{ form.password.label() }}
+                {{ form.password() }}
+            </fieldset>
+            {{ form.submit(class="call-to-action") }}
+        </form>
+    </div>
+</div>
+
+{% endblock %}

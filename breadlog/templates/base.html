@@ -6,10 +6,17 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>BreadLog</title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="#" />
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:100,300">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,300">
     </head>
     <body>
+        {% block header %}
+
+        {% endblock %}
+
        {% block body %}
 
        {% endblock %} 

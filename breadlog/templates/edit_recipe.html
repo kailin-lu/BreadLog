@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h1>{{ recipe.name }}</h1>
+    </div>
+</div>
+<!--Display existing steps with option to edit or delete-->
+<div class="row">
+    {% if recipe.steps | length < 1 %}
+    <div>
+        <p>No steps added yet, add a step below</p>
+    </div>
+    {% else %}
+        {% for step in recipe.steps %}
+            <div class="col-12">
+                <p>Step: {{ step.step_number }} Action: {{ step.action }} Time in Minutes: {{ step.minutes }}</p>
+                <a href="/delete_step/{{ step.id }}">Delete Step</a>
+            </div>
+        {% endfor %}
+    {% endif %} 
+</div>
+<!--Add new steps-->
+<div class=row>
+    <form method="POST" action="">
+    {{ form.hidden_tag() }}
+        <fieldset>
+            <div>
+                {{ form.step_number.label() }}
+                {{ form.step_number() }}
+
+                {{ form.action.label() }}
+                {{ form.action() }}
+
+                {{ form.minutes.label() }}
+                {{ form.minutes() }}
+
+                {{ form.notes.label() }}
+                {{ form.notes() }}
+
+                {{ form.submit(class="call-to-action") }}
+            </div>
+        </fieldset>
+    </form>
+</div>
+
+<!--Delete recipe-->
+<div class="row">
+    <div class="col-12">
+        <a href="/delete_recipe/{{ recipe.id }}">Delete Recipe</a>
+    </div>
+</div>
+
+{% endblock %}
+<!-- 
+<fieldset>
+    <legend class="form-legend">Add a new step</legend>
+    <div class="form-group">
+        {{ form.steps.step_number.label(class="form-control-label") }}
+        {{ form.steps.step_number(class="form-control form-control-lg")}}
+    </div>
+    <div class="form-group">
+        {{ form.steps.action.label(class="form-control-label") }}
+        {{ form.steps.action(class="form-control form-control-lg")}}
+    </div>
+    <div class="form-group">
+        {{ form.steps.minutes.label(class="form-control-label") }}
+        {{ form.steps.minutes(class="form-control form-control-lg")}}
+    </div>
+    <div class="form-group">
+        {{ form.steps.notes.label(class="form-control-label") }}
+        {{ form.steps.notes(class="form-control form-control-lg")}}
+    </div>
+    <div class="form-group">
+        {{ form.steps.submit(class="call-to-action") }}
+    </div>
+</fieldset>   
+-->

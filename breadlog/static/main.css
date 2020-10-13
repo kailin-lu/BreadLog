@@ -1,4 +1,121 @@
-body, html {
-    margin: 0;
-    font-family: sans-serif;
+/*
+323A3B  gray
+547264  dark green
+9CB7A6  light green
+F9F5EC  white
+C5514C  red */ 
+
+* {
+    box-sizing: border-box; 
 }
+
+body, html {
+    margin-top: 15px;
+    font-family: 'Heebo';
+}
+
+.col-1 {
+    width: 8.33%;
+    float: left;
+    padding: 15px;
+}
+.col-2 {
+    width: 16.66%;
+    float: left;
+    padding: 15px;
+}
+.col-3 {
+    width: 25%;
+    float: left;
+    padding: 15px;
+}
+.col-4 {
+    width: 33.33%;
+    float: left;
+    padding: 15px;
+}
+.col-5 {
+    width: 41.66%;
+    float: left;
+    padding: 15px;
+}
+.col-6 {
+    width: 50%;
+    float: left;
+    padding: 15px;
+}
+.col-7 {
+    width: 58.33%;
+    float: left;
+    padding: 15px;
+}
+.col-8 {
+    width: 66.66%;
+    float: left;
+    padding: 15px;
+}
+.col-9 {
+    width: 75%;
+    float: left;
+    padding: 15px;
+}
+.col-10 {
+    width: 83.33%;
+    float: left;
+    padding: 15px;
+}
+.col-11 {
+    width: 91.66%;
+    float: left;
+    padding: 15px;
+}
+.col-12 {
+    width: 100%;
+    float: left;
+    padding: 15px;
+    text-align: center;
+}
+
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+.content-title {
+    margin: 15px
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 300; 
+    color: #323A3B; 
+    display: inline;
+    margin-bottom: 0;
+}
+
+.content-title h4 {
+    font-size: 18px; 
+    font-weight: 100; 
+    margin-top: 0; 
+    color: #323A3B; 
+    display: inline-block;
+}
+
+a.button {
+    border-radius: 15px;
+    padding: 0.7em;
+}
+
+.call-to-action {
+    border: 1px solid #9CB7A6; 
+    background-color: #F9F5EC;
+    color: #547264;
+    font-family: 'Heebo';
+    font-weight: 300;   
+    font-size: 20px
+}
+
+
+
+
