@@ -71,15 +71,19 @@ def edit_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id) 
     form = StepForm()
     if form.validate_on_submit(): 
+        total_minutes = form.minutes.data
         new_step = Step(step_number=form.step_number.data,
                         action=form.action.data, 
-                        minutes=form.minutes.data,
+                        minutes=total_minutes,
                         notes=form.notes.data, 
                         recipe_id=recipe_id)
         try: 
+            if form.minutes.data > 0: 
+                recipe.total_minutes += total_minutes
+            recipe.total_steps += 1 
             db.session.add(new_step)
             db.session.commit()  
-            return redirect('/')
+            return redirect(url_for('edit_recipe', recipe_id=recipe.id))
         except:
             return 'There was an error adding the step'
     return render_template('edit_recipe.html', recipe=recipe, form=form) 
@@ -101,6 +105,9 @@ def delete_step(step_id):
     step_to_delete = Step.query.get_or_404(step_id)
     recipe_id = step_to_delete.recipe.id
     try: 
+        if step_to_delete.minutes > 0: 
+            step_to_delete.recipe.total_minutes -= step_to_delete.minutes
+        step_to_delete.recipe.total_steps -= 1 
         db.session.delete(step_to_delete)
         db.session.commit() 
     except: 

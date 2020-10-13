@@ -23,7 +23,7 @@
 </div>
 <!--Add new steps-->
 <div class=row>
-    <form method="POST" action="">
+    <form method="POST" action="{{ url_for('edit_recipe', recipe_id=recipe.id) }}">
     {{ form.hidden_tag() }}
         <fieldset>
             <div>

@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm 
 from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField,\
      FormField, FieldList, SubmitField, PasswordField 
-from wtforms.validators import DataRequired, Length, NumberRange, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Length, NumberRange, EqualTo
 
 class LoginForm(FlaskForm): 
     email = StringField('Email', validators=[DataRequired(message='Email is required')])
@@ -30,11 +30,20 @@ class StepForm(FlaskForm):
     ]
     step_number = IntegerField('Step Number', validators=[NumberRange(min=0)]) 
     action = SelectField('Action', choices=action_choices)
-    # Add ingredients form 
-    minutes = IntegerField('Timer', validators=[NumberRange(min=0)])
-    notes = TextAreaField('Details')
+    minutes = IntegerField('Timer', default=0)
+    notes = TextAreaField('Details', default='')
     submit = SubmitField('Add Step')
-
+    
+    def validate_minutes(self, minutes): 
+        """Checks that minutes is left blank or is >= 0"""
+        if minutes.data and minutes.data < 0: 
+            raise ValidationError('Minutes must be 0 or greater')   
+        
+    def validate_step_numbers(self, step_number):
+        step = Step.query.filter_by(step_number=step_number.data).first() 
+        if step: 
+            raise ValidationError(f'Already have this step number in recipe. Try {step.step_number + 1}')
+    
 
 class RecipeForm(FlaskForm): 
     recipe_name = StringField('Recipe Name', 

@@ -13,12 +13,20 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,300">
     </head>
     <body>
-        {% block header %}
+        {% block header %}{% endblock %}
+        
+        <nav>
+            <ul>
+                {% if current_user.is_authenticated %} 
+                <li><a href="{{ url_for('recipes') }}">Recipes</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
 
-        {% endblock %}
-
-       {% block body %}
-
-       {% endblock %} 
+       {% block body %}{% endblock %} 
     </body>
 </html>
