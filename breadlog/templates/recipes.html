@@ -13,39 +13,37 @@
 {% block body %}
 <div class="row">
     <!--Sidebar of existing recipes-->
-    <div class="col-4"> 
+    <div class="col-4">
+        <form method="POST" action=""> <!--action="" means post to the same route we're on-->
+            {{ form.hidden_tag() }} <!--add a CSRF token-->
+            <fieldset>
+                <div>
+                    {{ form.recipe_name.label(class="") }}<span></span>
+                    {{ form.recipe_name(class="")}}
+                    {{ form.submit(class="call-to-action-small") }}
+                </div>
+            </fieldset>
+        </form>
+        <br>
         {% if recipes|length < 1 %}
         <h4>No recipes yet. Try creating a new one.</h4> 
         {% else %}
-        <h4>Recipes</h4>
-        <table>
-            <tr>
-                <th>Recipe</th>
-            </tr>
-            {% for recipe in recipes %}
-                <tr>
-                    <td><button class="recipe-name" data-name="{{ recipe.id }}">{{ recipe.name }}</button></td>
-                    <td><a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}"><i class="fa fa-edit"></i></a></td>
-                    <td><a href="{{ url_for('delete_recipe', recipe_id=recipe.id) }}"><i class="fa fa-trash"></i></a></td>
-                </tr>
-            {% endfor %}
-        </table>
+        <div class="box">
+            <h3 class="table-header">RECIPE BOX</h3>
+            <table>
+                {% for recipe in recipes %}
+                    <tr>
+                        <td><button class="recipe-name" data-name="{{ recipe.id }}">{{ recipe.name }}</button></td>
+                        <td><a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}"><i class="fa fa-edit"></i></a></td>
+                        <td><a href="{{ url_for('delete_recipe', recipe_id=recipe.id) }}"><i class="fa fa-trash"></i></a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
         {% endif %}
     </div>
     <!--On the right we'll have create new recipe + space to load existing recipe-->
     <div class="col-8">
-        <div class="col-8">
-            <form method="POST" action=""> <!--action="" means post to the same route we're on-->
-                {{ form.hidden_tag() }} <!--add a CSRF token-->
-                <fieldset>
-                    <div>
-                        {{ form.recipe_name.label(class="form-control-label") }}<!--add classes inside parens-->
-                        {{ form.recipe_name(class="form-control form-control-lg")}}
-                        {{ form.submit(class="call-to-action") }}
-                    </div>
-                </fieldset>
-            </form>
-        </div>
         <div class="col-8">
             <div id="placeholder"class="placeholder-show">
                 {% if recipes | length < 1 %}
@@ -53,6 +51,7 @@
                 {% else %}
                 <!--Show information for the first recipe-->
                 <h1>{{ recipes[0].name }}</h1>
+                <hr>
                 <p>Total time: {{ recipes[0].total_minutes }} minutes</p>
                 <h4>Ingredients</h4>
                 <p>PLACEHOLDER FOR TOTAL INGREDIENTS LIST</p>
@@ -64,6 +63,7 @@
             </div>
             <div id="requested-recipe" class="placeholder-hide">
                 <h1 id="recipe-name"></h1>
+                <hr>
                 <p id="recipe-min"></p>
                 <h4>Ingredients</h4>
                 <p>PLACEHOLDER FOR TOTAL INGREDIENTS LIST</p>

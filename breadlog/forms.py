@@ -39,7 +39,9 @@ class StepForm(FlaskForm):
         ('shape', 'Shape'), 
         ('bake', 'Bake')
     ]
-    step_number = IntegerField('Step Number', validators=[NumberRange(min=0)]) 
+    step_number = IntegerField('Step Number', 
+                               render_kw={'placeholder': 'Enter a number'},
+                               validators=[NumberRange(min=0)]) 
     action = SelectField('Action', choices=action_choices)
     minutes = IntegerField('Timer', default=0)
     notes = TextAreaField('Details', default='')
@@ -57,6 +59,7 @@ class StepForm(FlaskForm):
     
 
 class RecipeForm(FlaskForm): 
-    recipe_name = StringField('Recipe Name', 
+    recipe_name = StringField('New Recipe', 
+                              render_kw={"placeholder": "Recipe name"},
                               validators=[DataRequired(), Length(min=1, max=50)])
     submit = SubmitField('Create')
