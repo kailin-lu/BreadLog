@@ -25,7 +25,8 @@
             <div class="col-12">
                 <p>Step: {{ step.step_number }} Action: {{ step.action }} Time in Minutes: {{ step.minutes }}</p>
                 <a href="/delete_step/{{ step.id }}">Delete Step</a>
-                <a id="add-ingredients" href="">Add Ingredients</a>
+                <button id="ingredient">Add Ingredient</button>
+                <div id="ingredient-form"></div>
                 <div class="col-12" id="ingredients-list"></div>
             </div>
         {% endfor %}
@@ -62,4 +63,12 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+    });
+</script>
 {% endblock %}

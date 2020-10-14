@@ -121,12 +121,22 @@ li {
     font-size:18px;
 }
 
-a.menu, a.menu:visited {
-    color:#323A3B;
+fieldset {
+    border: 0; 
 }
 
 a.menu:hover {
     color:#547264; 
+    text-decoration: underline;
+}
+
+a.menu, a.menu:visited {
+    text-decoration: none;
+    color:#323A3B;
+}
+
+a.title:hover {
+    text-decoration: underline;
 }
 
 a.title, a.title:visited {
@@ -180,10 +190,6 @@ span:before{
     text-align: center;
 }
 
-fieldset {
-    border: 0; 
-}
-
 .form-label {
     font-size: 1.5em;
     text-align: right; 
@@ -235,6 +241,15 @@ a.button {
     font-family: 'Heebo';
     font-weight: 300;   
     font-size: 20px
+}
+
+.placeholder-show {
+    font-family: 'Raleway'; 
+    font-size: 1.2em;
+}
+
+.placeholder-hide {
+    display: none;
 }
 
 

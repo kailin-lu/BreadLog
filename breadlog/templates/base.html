@@ -10,8 +10,9 @@
         <link rel="shortcut icon" href="#" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:100,300">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,300">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,300">    
     </head>
     <body>
         {% block header %}{% endblock %}
@@ -33,5 +34,8 @@
         </nav>
 
        {% block body %}{% endblock %} 
+
+       {% block script %}
+       {% endblock %} 
     </body>
 </html>
