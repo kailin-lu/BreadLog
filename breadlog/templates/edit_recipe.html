@@ -11,7 +11,7 @@
 {% block body %}
 <div class="row">
     <div class="col-12">
-        <h1>{{ recipe.name }}</h1>
+        <h1>{{ recipe.name }} <i>(Editing)</i></h1>
     </div>
 </div>
 <!--Display existing steps with option to edit or delete-->
@@ -22,13 +22,27 @@
     </div>
     {% else %}
         {% for step in recipe.steps %}
-            <div class="col-12">
-                <p>Step: {{ step.step_number }} Action: {{ step.action }} Time in Minutes: {{ step.minutes }}</p>
-                <a href="/delete_step/{{ step.id }}">Delete Step</a>
+        <div class="col-12 recipe-step">
+            <div class="col-1">
+                <h3 class="step-number">Step: {{ step.step_number }}</h3>
+            </div>
+            <div class="col-7">
+                <p>Time in Minutes: {{ step.minutes }}</p>
+                <p>{{step.notes}}</p>
+            </div>
+            <div class="col-3">
+                <p>Ingredients</p>
                 <button id="ingredient">Add Ingredient</button>
                 <div id="ingredient-form"></div>
                 <div class="col-12" id="ingredients-list"></div>
             </div>
+            <div class="col-1">
+                <a href="/delete_step/{{ step.id }}">Delete Step</a>
+                <a href="/delete_step/{{ step.id }}">Move Up</a>
+                <a href="/delete_step/{{ step.id }}">Move Down</a>
+            </div>
+
+        </div>
         {% endfor %}
     {% endif %} 
 </div>
@@ -38,12 +52,6 @@
     {{ form.hidden_tag() }}
         <fieldset>
             <div>
-                {{ form.step_number.label() }}
-                {{ form.step_number() }}
-
-                {{ form.action.label() }}
-                {{ form.action() }}
-
                 {{ form.minutes.label() }}
                 {{ form.minutes() }}
 

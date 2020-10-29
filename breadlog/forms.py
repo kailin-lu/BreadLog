@@ -4,13 +4,17 @@ from wtforms import StringField, IntegerField, FloatField, SelectField, TextArea
 from wtforms.validators import ValidationError, DataRequired, Length, NumberRange, EqualTo
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from breadlog import db
+from breadlog.models import Ingredient, Step
+
 
 class LoginForm(FlaskForm): 
     email = StringField('Email', validators=[DataRequired(message='Email is required')])
     password = PasswordField('Password', validators=[DataRequired(message='Password is required')])
-    submit = SubmitField('Log In') 
+    submit = SubmitField('Log In')
 
-class RegisterForm(FlaskForm): 
+
+class RegisterForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(message="Name is required")])
     email = StringField('Email', validators=[DataRequired(message='Email not validated')])
     password = PasswordField('Password', validators=[DataRequired(message='password not validated')])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(message='confirm password not validated'), 
@@ -29,20 +33,7 @@ class AddIngredientForm(FlaskForm):
         return db.session.query(Ingredient).order_by(Ingredient.name).all()
 
 
-class StepForm(FlaskForm): 
-    action_choices = [
-        ('mix', 'Mix'), 
-        ('autolyse', 'Autolyse'), 
-        ('knead', 'Knead'), 
-        ('rest', 'Rest'), 
-        ('fold', 'Fold'), 
-        ('shape', 'Shape'), 
-        ('bake', 'Bake')
-    ]
-    step_number = IntegerField('Step Number', 
-                               render_kw={'placeholder': 'Enter a number'},
-                               validators=[NumberRange(min=0)]) 
-    action = SelectField('Action', choices=action_choices)
+class StepForm(FlaskForm):
     minutes = IntegerField('Timer', default=0)
     notes = TextAreaField('Details', default='')
     submit = SubmitField('Add Step')
@@ -51,12 +42,7 @@ class StepForm(FlaskForm):
         """Checks that minutes is left blank or is >= 0"""
         if minutes.data and minutes.data < 0: 
             raise ValidationError('Minutes must be 0 or greater')   
-        
-    def validate_step_numbers(self, step_number):
-        step = Step.query.filter_by(step_number=step_number.data).first() 
-        if step: 
-            raise ValidationError(f'Already have this step number in recipe. Try {step.step_number + 1}')
-    
+
 
 class RecipeForm(FlaskForm): 
     recipe_name = StringField('New Recipe', 

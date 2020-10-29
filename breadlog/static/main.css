@@ -137,7 +137,6 @@ table {
     margin-right: auto;
 }
 
-
 a.menu:hover {
     color:#547264; 
     text-decoration: underline;
@@ -227,6 +226,11 @@ span:before{
 .form-value {
     font-size: 1.5em;
     text-align: left; 
+}
+
+.step-number h3 {
+    font-size: 2em;
+    text-align: center;
 }
 
 img {
