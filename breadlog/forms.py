@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField,\
      FormField, FieldList, SubmitField, PasswordField 
 from wtforms.validators import ValidationError, DataRequired, Length, NumberRange, EqualTo
+from wtforms.widgets import TextArea
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from breadlog import db
 from breadlog.models import Ingredient, Step
@@ -35,7 +36,7 @@ class AddIngredientForm(FlaskForm):
 
 class StepForm(FlaskForm):
     minutes = IntegerField('Timer', default=0)
-    notes = TextAreaField('Details', default='')
+    notes = StringField('Details', widget=TextArea())
     submit = SubmitField('Add Step')
     
     def validate_minutes(self, minutes): 

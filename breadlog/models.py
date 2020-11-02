@@ -32,7 +32,7 @@ class Recipe(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id'),
                         nullable=False)  # User does not have to be logged in
-    steps = db.relationship('Step', backref="recipe", lazy=True, order_by='Step.step_number')
+    steps = db.relationship('Step', backref='recipe', lazy=False, order_by='Step.step_number')
 
     def __init__(self, name, user_id):
         self.name = name
@@ -49,6 +49,7 @@ class Step(db.Model):
     created_at: datetime
     minutes: int
     notes: str
+    ingredients: list
 
     id = db.Column(db.Integer, primary_key=True)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
@@ -57,6 +58,8 @@ class Step(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text, nullable=True)
+    ingredients = db.relationship('StepIngredient', backref='step', 
+                                  lazy=False, order_by='StepIngredient.weight')
 
     def __init__(self, step_number, minutes, notes, recipe_id):
         self.step_number = step_number
@@ -79,18 +82,24 @@ class Ingredient(db.Model):
         return f'Ingredient({self.name})'
 
 
+@dataclass
 class StepIngredient(db.Model):
+    id: str
+    ingredient: str
+    step_id: int
+    weight: float
+    created_at: datetime
+    
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    # ingredient_id = db.Column(UUID(as_uuid=True), db.ForeignKey('ingredient.id'), nullable=False)
+    ingredient = db.Column(db.String(256), nullable=True)
     step_id = db.Column(db.Integer, db.ForeignKey('step.id'), nullable=False)
     weight = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, weight):
+    def __init__(self, step_id, ingredient, weight):
+        self.step_id = step_id 
+        self.ingredient = ingredient
         self.weight = weight
-
-    def __repr__(self):
-        pass
 
 
 class User(db.Model, UserMixin):

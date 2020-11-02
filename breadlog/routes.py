@@ -1,7 +1,8 @@
 import sys
-from flask import render_template, url_for, request, redirect, flash, jsonify
+from collections import defaultdict
+from flask import render_template, url_for, request, redirect, flash, jsonify, make_response
 from breadlog import app, db, bcrypt
-from breadlog.models import Recipe, Step, User
+from breadlog.models import Recipe, Step, User, StepIngredient
 from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm, AddIngredientForm
 from flask_login import login_user, current_user, logout_user
 
@@ -14,7 +15,7 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect('/recipes')  # TODO: replace with something that makes sense 
+        return redirect('/recipes') 
     form = RegisterForm()
     if request.method == 'POST' and not form.validate():
         errors = []
@@ -72,6 +73,7 @@ def recipes():
 @app.route('/recipes/edit/<int:recipe_id>', methods=['GET', 'POST'])
 def edit_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
+    ingredients = sum_recipe_ingredients(recipe)
     form = StepForm()
     if form.validate_on_submit():
         total_minutes = form.minutes.data
@@ -88,18 +90,7 @@ def edit_recipe(recipe_id):
             return redirect(url_for('edit_recipe', recipe_id=recipe.id))
         except:
             return f'There was an error adding the step, {recipe.total_steps}'
-    return render_template('edit_recipe.html', recipe=recipe, form=form)
-
-
-@app.route('/delete_recipe/<int:recipe_id>')
-def delete_recipe(recipe_id):
-    recipe_to_delete = Recipe.query.get_or_404(recipe_id)
-    try:
-        db.session.delete(recipe_to_delete)
-        db.session.commit()
-        return redirect('/recipes')
-    except:
-        return 'Error deleting recipe'
+    return render_template('edit_recipe.html', recipe=recipe, form=form, ingredients=ingredients)
 
 
 @app.route('/delete_step/<int:step_id>', methods=['GET', 'POST'])
@@ -110,6 +101,11 @@ def delete_step(step_id):
         if step_to_delete.minutes > 0:
             step_to_delete.recipe.total_minutes -= step_to_delete.minutes
         step_to_delete.recipe.total_steps -= 1
+        step_number = step_to_delete.step_number
+        # shift step numbers after step up
+        for step in step_to_delete.recipe.steps:
+            if step.step_number > step_number:
+                step.step_number -= 1
         db.session.delete(step_to_delete)
         db.session.commit()
     except:
@@ -117,10 +113,87 @@ def delete_step(step_id):
     return redirect(url_for('edit_recipe', recipe_id=recipe_id))
 
 
+@app.route('/move_step_up/<int:step_id>', methods=['GET', 'POST'])
+def move_step_up(step_id):
+    step_to_move = Step.query.get_or_404(step_id)
+    new_step_number = step_to_move.step_number - 1
+    recipe = step_to_move.recipe
+    step_to_increment = [step for step in recipe.steps if step.step_number == new_step_number][0]
+    step_to_increment.step_number += 1
+    step_to_move.step_number = new_step_number
+    db.session.commit()
+    return redirect(url_for('edit_recipe', recipe_id=recipe.id))
+
+
+@app.route('/move_step_down/<int:step_id>', methods=['GET', 'POST'])
+def move_step_down(step_id):
+    step_to_move = Step.query.get_or_404(step_id)
+    new_step_number = step_to_move.step_number + 1
+    recipe = step_to_move.recipe
+    step_to_decrement = [step for step in recipe.steps if step.step_number == new_step_number][0]
+    step_to_decrement.step_number -= 1
+    step_to_move.step_number = new_step_number
+    db.session.commit()
+    return redirect(url_for('edit_recipe', recipe_id=recipe.id))
+
+
+@app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def delete_recipe(recipe_id):
+    recipe_to_delete = Recipe.query.get_or_404(recipe_id)
+    try:
+        db.session.delete(recipe_to_delete)
+        db.session.commit()
+        return redirect('/recipes')
+    except:
+        return 'Error deleting recipe'
+
+
 # Add ingredient to step 
-@app.route('/step/<int:step_id>/add_step_ingredient')
+@app.route('/step/<int:step_id>/add_step_ingredient', methods=['POST']) 
 def add_step_ingredient(step_id):
-    form = AddIngredientForm()
+    req = request.get_json() 
+    ingredient = req['ingredient']
+    weight = req['weight']
+    print(req)
+    new_step_ingredient = StepIngredient(step_id=step_id, ingredient=ingredient, weight=weight)
+    try: 
+        db.session.add(new_step_ingredient) 
+        db.session.commit() 
+        res = make_response(jsonify({'ingredient': 'received'}), 200) 
+    except: 
+        res = make_response(jsonify({'ingredient': 'not received'}), 404) 
+    return res
+
+
+@app.route('/step_ingredient/<string:step_ingredient_id>/delete_step_ingredient', methods=['POST'])
+def delete_step_ingredient(step_ingredient_id): 
+    step_ingredient = StepIngredient.query.get_or_404(step_ingredient_id)
+    try: 
+        db.session.delete(step_ingredient)
+        db.session.commit() 
+    except: 
+        return 'Error deleting step ingredient'
+
+
+# sum ingredient totals in recipe 
+def sum_recipe_ingredients(recipe): 
+    ingredient_list = defaultdict(list)
+    flour_weight = 0 
+    for step in recipe.steps: 
+        for ingr in step.ingredients: 
+            if ingr.ingredient in ingredient_list.keys():
+                ingredient_list[ingr.ingredient][0] += ingr.weight 
+            else: 
+                ingredient_list[ingr.ingredient].append(ingr.weight)
+            # if ingredient name contains flour add to flour weight 
+            if 'FLOUR' in ingr.ingredient:
+                flour_weight += ingr.weight
+    for ingr, val in ingredient_list.items(): 
+        if flour_weight != 0: 
+            ingredient_list[ingr].append(round(val[0]*100 / flour_weight,1))
+        else: 
+            ingredient_list[ingr].append(0)
+    return ingredient_list
 
 
 # Add ingredient to database 
@@ -147,5 +220,12 @@ def recipe():
 # Get a recipe by ID
 @app.route('/recipe/id/<int:recipe_id>', methods=['GET'])
 def recipe_id(recipe_id):
-    recipe = Recipe.query.filter_by(id=recipe_id).first()
+    recipe = Recipe.query.get_or_404(recipe_id) 
     return jsonify(recipe)
+    
+    
+@app.route('/recipe/id/<int:recipe_id>/step/<int:step_id>', methods=['GET'])
+def step_id(recipe_id, step_id):
+    steps = Recipe.query.get_or_404(recipe_id).steps
+    step = [step for step in steps if step.id == step_id][0]
+    return jsonify(step)
