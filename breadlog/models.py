@@ -56,13 +56,15 @@ class Step(db.Model):
     step_number = db.Column(db.Integer, nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    hours = db.Column(db.Integer, nullable=True, default=0)
     minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text, nullable=True)
     ingredients = db.relationship('StepIngredient', backref='step', 
-                                  lazy=False, order_by='StepIngredient.weight')
+                                  lazy=False, order_by='StepIngredient.weight', cascade="all, delete-orphan")
 
-    def __init__(self, step_number, minutes, notes, recipe_id):
+    def __init__(self, step_number, hours, minutes, notes, recipe_id):
         self.step_number = step_number
+        self.hours = hours 
         self.minutes = minutes
         self.notes = notes
         self.recipe_id = recipe_id

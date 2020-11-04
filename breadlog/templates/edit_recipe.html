@@ -50,75 +50,89 @@
         <!--Displays steps-->
         <div class="col-12"><h2 id="steps">S T E P S</h2></div>
         {% for step in recipe.steps %}
-        <div class="col-12 recipe-step">
-            <div class="col-2">
-                <h3>{{ step.step_number }}</h3>
-            </div>
-            <div class="col-5">
-                <h4>1 H {{ step.minutes }} MIN</h4>
-                <div class="col-12 step-notes">
-                    <p>{{step.notes}}</p>
+        <div class="col-12 recipe-step" id="step-{{ step.id }}" data-stepnum="{{ step.step_number }}">
+            <div class="row">
+                <div class="edit-button col-12">
+                    {% if step.step_number > 1 %}
+                        <button class="step-action move-up" data-stepid="{{ step.id }}"><i class="fa fa-chevron-up"></i></button>
+                    {% endif %}
+                    {% if step.step_number != recipe.total_steps %}
+                        <button class="step-action move-down" data-stepid="{{ step.id }}"><i class="fa fa-chevron-down"></i></button>
+                    {% endif %}
+                    <button class="step-action step-delete" data-stepid="{{ step.id }}"><i class="fa fa-times"></i></button>
                 </div>
             </div>
-            <div class="col-4">
-                <table class="ingredient-list-table" id="ingredient-list-{{step.id}}">
-                    <tr>
-                        <th>INGREDIENT</th>
-                        <th>WEIGHT (g)</th>
-                    </tr>
-                    {% for ingredient in step.ingredients %}
-                    <tr>
-                        <td>{{ ingredient.ingredient }}</td>
-                        <td>{{ ingredient.weight }}</td>
-                        <td class="placeholder-show"><i class="fa fa-edit"></i></td>
-                        <td class="placeholder-show"><a href="{{ url_for('delete_step_ingredient', step_ingredient_id=ingredient.id) }}"><i class="fa fa-trash"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                </table>
-                <div id="ingredient-form-{{ step.id }}">
-                    <form class="form-ingredient" data-stepid="{{ step.id }}" data-recipeid="{{ recipe.id }}">
-                        <input class="ingredient-input" type="text" name="ingredient" placeholder="INGREDIENT">
-                        <input class="ingredient-input" type="number" step=".01" min="0" name="weight" placeholder="100">
-                        <input class="ingredient-add-btn" type="submit" data-stepid="{{ step.id }}" value="Add">
-                    </form>
+            <div class="row">
+                <div class="col-1">
+                    <h3 class="step-number" data-stepnum="{{ step.step_number }}">{{ step.step_number }}</h3>
                 </div>
-            </div>
-            <div class="col-1">
-                <a href="/delete_step/{{ step.id }}">Delete Step</a>
-                {% if step.step_number > 1 %}
-                    <a href="/move_step_up/{{ step.id }}">Move Up</a>
-                {% endif %}
-                {% if step.step_number != recipe.total_steps %}
-                    <a href="/move_step_down/{{ step.id }}">Move Down</a>
-                {% endif %}
+                <div class="col-6">
+                    <h4>{{ step.hours if step.hours else 0}} H {{ step.minutes if step.minutes else 0 }} MIN</h4>
+                    <div class="col-12 step-notes">
+                        <p>{{step.notes}}</p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <br>
+                    <table class="ingredient-list-table" id="ingredient-list-{{step.id}}">
+                        <tr>
+                            <th>INGREDIENT</th>
+                            <th>WEIGHT (g)</th>
+                        </tr>
+                        {% for ingredient in step.ingredients %}
+                        <tr>
+                            <td>{{ ingredient.ingredient }}</td>
+                            <td class="weight-col">{{ ingredient.weight }}</td>
+                            <td class="edit-col placeholder-hide">
+                                <i class="fa fa-edit edit-col-icon"></i>
+                                <i class="fa fa-times edit-col-icon"></i>
+                            </td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="form-ingredient-div" id="ingredient-form-{{ step.id }}">
+                        <br>
+                        <form class="form-ingredient" data-stepid="{{ step.id }}" data-recipeid="{{ recipe.id }}">
+                            <label for="ingredient">Add Ingredient to Step</label><br>
+                            <input class="ingredient-input" type="text" required name="ingredient" placeholder="INGREDIENT NAME">
+                            <input class="ingredient-input" type="number" required step=".01" min="0" name="weight" placeholder="WEIGHT IN GRAMS">
+                            <input class="ingredient-add-btn" type="submit" data-stepid="{{ step.id }}" value="ADD">
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-1"></div><div class="col-10 break"></div><div class="col-1"></div>
+        <div class="col-12"><br></div>
         {% endfor %}
     {% endif %} 
 </div>
 <!--Add new steps-->
-<div class="row col-12">
-    <form method="POST" action="{{ url_for('edit_recipe', recipe_id=recipe.id) }}">
-    {{ form.hidden_tag() }}
-        <fieldset>
-            <div>
-                {{ form.minutes.label() }}
-                {{ form.minutes() }}
-
-                {{ form.notes.label() }}
-                {{ form.notes(cols="40", rows="10") }}
-
-                {{ form.submit(class="call-to-action") }}
-            </div>
-        </fieldset>
-    </form>
+<div class="col-12" id="new-step-form">
+    <div class="col-3"></div>
+    <div class="col-6 new-step">
+        <h4>CREATE A NEW STEP</h4>
+        <form id="add-new-step" data-recipeid="{{ recipe.id }}" data-steps="{{ recipe.steps | length }}">
+            <h5>TIME IN STEP</h5> | 
+            <input class="step-form" type="number" min="0" name="hours" placeholder="0"> 
+            <label for="hours">Hours</label>
+            <input class="step-form" type="number" min="0" max="59" name="minutes", placeholder="0"> 
+            <label for="hours">Minutes</label>
+            <br>
+            <h5>INSTRUCTIONS</h5>
+            <textarea name="notes" rows="10" required placeholder="Describe step here"></textarea>
+            <br>
+            <br>
+            <input class="add-step-submit" type="submit" value="ADD STEP">
+        </form>
+    </div>
+    <div class="col-3"></div>
 </div>
 
 <!--Delete recipe-->
 <div class="row">
-    <div class="col-12">
-        <a href="/delete_recipe/{{ recipe.id }}">Delete Recipe</a>
+    <div class="col-12 delete-footer">
+        <a href="/delete_recipe/{{ recipe.id }}">Delete this recipe</a>
     </div>
 </div>
 

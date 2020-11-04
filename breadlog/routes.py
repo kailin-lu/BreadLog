@@ -5,6 +5,7 @@ from breadlog import app, db, bcrypt
 from breadlog.models import Recipe, Step, User, StepIngredient
 from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm, AddIngredientForm
 from flask_login import login_user, current_user, logout_user
+from sqlalchemy.exc import SQLAlchemyError
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -70,47 +71,55 @@ def recipes():
     return render_template('recipes.html', form=form, recipes=recipes)
 
 
-@app.route('/recipes/edit/<int:recipe_id>', methods=['GET', 'POST'])
+@app.route('/recipes/edit/<int:recipe_id>', methods=['GET'])
 def edit_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
     ingredients = sum_recipe_ingredients(recipe)
-    form = StepForm()
-    if form.validate_on_submit():
-        total_minutes = form.minutes.data
-        new_step = Step(step_number=len(recipe.steps) + 1,
-                        minutes=total_minutes,
-                        notes=form.notes.data,
-                        recipe_id=recipe_id)
-        try:
-            if form.minutes.data > 0:
-                recipe.total_minutes += total_minutes
-            recipe.total_steps += 1
-            db.session.add(new_step)
-            db.session.commit()
-            return redirect(url_for('edit_recipe', recipe_id=recipe.id))
-        except:
-            return f'There was an error adding the step, {recipe.total_steps}'
-    return render_template('edit_recipe.html', recipe=recipe, form=form, ingredients=ingredients)
+    return render_template('edit_recipe.html', recipe=recipe, ingredients=ingredients)
 
 
-@app.route('/delete_step/<int:step_id>', methods=['GET', 'POST'])
+@app.route('/recipes/<int:recipe_id>/add_step', methods=['POST'])
+def add_step(recipe_id): 
+    req = request.get_json() 
+    recipe = Recipe.query.get_or_404(recipe_id)
+    hours = req['hours']
+    minutes = req['minutes']
+    total_steps = len(recipe.steps) + 1
+    new_step = Step(step_number=total_steps, 
+                    hours=hours, 
+                    minutes=minutes, 
+                    notes=req['notes'], 
+                    recipe_id=recipe_id)
+    recipe.total_minutes += int(hours) * 60 + int(minutes)
+    recipe.total_steps = total_steps
+    try: 
+        db.session.add(new_step) 
+        db.session.commit()
+        return make_response(jsonify({'message': 'successful'}, 200))
+    except SQLAlchemyError as e: 
+        return f'Error {e.orig} Parameters {e.params}'
+
+
+@app.route('/delete_step/<int:step_id>', methods=['POST'])
 def delete_step(step_id):
     step_to_delete = Step.query.get_or_404(step_id)
     recipe_id = step_to_delete.recipe.id
-    try:
-        if step_to_delete.minutes > 0:
-            step_to_delete.recipe.total_minutes -= step_to_delete.minutes
-        step_to_delete.recipe.total_steps -= 1
-        step_number = step_to_delete.step_number
-        # shift step numbers after step up
-        for step in step_to_delete.recipe.steps:
-            if step.step_number > step_number:
-                step.step_number -= 1
+    msg = ''
+    if step_to_delete.minutes > 0:
+        step_to_delete.recipe.total_minutes -= step_to_delete.minutes
+    step_to_delete.recipe.total_steps = len(step_to_delete.recipe.steps) - 1
+    step_number = step_to_delete.step_number
+    # shift step numbers after step up
+    for step in step_to_delete.recipe.steps:
+        if step.step_number > step_number:
+            step.step_number -= 1
+    try:        
         db.session.delete(step_to_delete)
         db.session.commit()
-    except:
-        return 'Error deleting step'
-    return redirect(url_for('edit_recipe', recipe_id=recipe_id))
+        res = make_response(jsonify({'message': 'delete successful'}), 200)
+        return res 
+    except SQLAlchemyError as e: 
+        return f'Error {e.orig} Parameters {e.params}'
 
 
 @app.route('/move_step_up/<int:step_id>', methods=['GET', 'POST'])

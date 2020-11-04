@@ -15,34 +15,71 @@ document.addEventListener('DOMContentLoaded', function() {
         }); 
     }); 
 
-    // Show delete button on hover 
-    document.querySelectorAll('tr').forEach(item => {
-        item.addEventListener('hover', function() {
-            // flip child nodes with placeholder-hide 
-        });
-    })
-
-    // Edit existing ingredients 
-    document.querySelectorAll('.step-ingredient').forEach(item => {
-        item.ondblclick = dblClickToEditIngredient;
-    }); 
-
     // Delete ingredient from step 
-    document.querySelectorAll('').forEach(item => {
+    document.querySelectorAll('.step-delete').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault(); 
-
-    }); 
+            let stepId = this.dataset.stepid; 
+            let stepNumber = this.dataset.stepnum;
+            let url = `${window.origin}/step_ingredient/${stepId}/delete_step_ingredient`; 
+            data = {
+                'stepNumber': stepNumber
+            }
+            postData(url, data, stepId=stepId, itemToDelete='ingredient');
+        })
+    });
 
     // Add step to recipe 
-    document.getElementById().addEventListener('click', function(e) {
+    document.getElementById('add-new-step').addEventListener('submit', function(e) {
         e.preventDefault(); 
+        let recipeId = this.dataset.recipeid;
+        let steps = this.dataset.steps;
+        let url = `${window.origin}/recipes/${recipeId}/add_step`;
+
+        let data = {
+            'step_number': steps + 1,
+            'hours': this.hours.value || 0,
+            'minutes': this.minutes.value || 0, 
+            'notes': this.notes.value,
+            'recipe_id': recipeId
+        }
+        postData(url, data);
     }); 
 
     // Delete step from recipe 
+    document.querySelectorAll('.step-delete').forEach(item => {
+        item.addEventListener('click', function(e) {
+            let stepId = this.dataset.stepid;
+            let url = `${window.origin}/delete_step/${stepId}`;
+            let stepNumber = this.dataset.stepnum;
+            data = {
+                'stepNumber': stepNumber
+            }
+            postData(url, data={}, stepId, itemToDelete='step')
+        })
+    }); 
+
+    // On hover 
+    document.querySelectorAll('.ingredient-list-table tr').forEach(item => {
+        item.addEventListener('mouseenter', function(event) {
+            let editCols = event.target.getElementsByClassName('placeholder-hide'); 
+            if (editCols.length === 1) {
+                editCols[0].classList.add('placeholder-show');
+                editCols[0].classList.remove('placeholder-hide');
+            }
+        });
+
+        item.addEventListener('mouseleave', function(event) {
+            let editCols = event.target.getElementsByClassName('placeholder-show'); 
+            if (editCols.length === 1) {
+                editCols[0].classList.add('placeholder-hide');
+                editCols[0].classList.remove('placeholder-show');
+            }
+        });
+    });
 });
 
-function postData(url = '', data = {}, stepId = '') {
+function postData(url = '', data = {}, stepId = '', itemToDelete = '') {
     fetch(url, {
        method: 'POST', 
        cors: 'same-origin',
@@ -62,6 +99,13 @@ function postData(url = '', data = {}, stepId = '') {
                 updateIngredients(data, stepId); 
             }
             // Add step 
+            else if ('notes' in data) {
+                addStepToWindow(data); 
+            }
+            // Remove step 
+            else if (itemToDelete === 'step') {
+                removeStepFromWindow(data, stepId);
+            }
         }
    });
 }
@@ -80,13 +124,38 @@ function updateIngredients(data, stepId) {
     tableRow.append(weightNode); 
 
     document.getElementById(`ingredient-form-${stepId}`).append(tableRow);
-
-
     // Recalculate ingredient totals at top 
 }
 
-function dblClickToEditIngredient() {
-    // Replace ingredient row with input 
-    const template = `${this.childNodes[0].innerText}`; 
-    console.log(template);
+function addStepToWindow(data) {
+    const template = `<div class="col-12 recipe-step">
+                        <div class="row">
+                            <div class="col-1">
+                                 <h3 class="step-number" data-stepnum="{{ step.step_number }}">${data['step_number']}</h3>
+                            </div>
+                            <div class="col-6">
+                                <h4>${data['hours']} H ${data['minutes']} MIN</h4>
+                                <div class="col-12 step-notes">
+                                    <p>${data['notes']}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row"></div>
+                      </div>
+                      <div class="col-12"><br></div>`
+    const fragment = document.createRange().createContextualFragment(template);
+    const currentEl = document.getElementById('new-step-form');
+    currentEl.parentNode.insertBefore(fragment, currentEl);
+}
+
+function removeStepFromWindow(data, stepId) {
+    let elementId = `step-${stepId}`;
+    // Update step numbers in other steps 
+    document.querySelectorAll('.step-number').forEach(item => {
+        if (item.dataset.stepnum > data['stepNumber']) {
+            item.dataset.stepnum -= 1;
+            item.innerText = item.dataset.stepnum;
+        }
+    }); 
+    document.getElementById(`step-${stepId}`).remove(); 
 }

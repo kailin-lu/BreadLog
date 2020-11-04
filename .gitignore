@@ -2,3 +2,5 @@
 __Pycache__/*
 .DS_Store
 migrations/*
+.idea/*
+venv/
