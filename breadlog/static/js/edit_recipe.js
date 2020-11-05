@@ -1,13 +1,17 @@
 // Scripts for adding ingredients on recipe edit page 
 
 document.addEventListener('DOMContentLoaded', function() {
+    var data; 
+    var stepId; 
+    var url; 
+
     // Add new ingredient to step 
     document.querySelectorAll('.form-ingredient').forEach(item => {
         item.addEventListener('submit', function(e) {
             e.preventDefault(); 
-            let stepId = this.dataset.stepid;
-            let url = `${window.origin}/step/${stepId}/add_step_ingredient`;
-            let data = {
+            stepId = this.dataset.stepid;
+            url = `${window.origin}/step/${stepId}/add_step_ingredient`;
+            data = {
                 'ingredient': this.ingredient.value.toUpperCase(), 
                 'weight': this.weight.value
             }
@@ -16,16 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }); 
 
     // Delete ingredient from step 
-    document.querySelectorAll('.step-delete').forEach(item => {
+    document.querySelectorAll('.delete-step-ingredient').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault(); 
-            let stepId = this.dataset.stepid; 
+            let stepIngredientId = this.dataset.step-ingredient-id; 
             let stepNumber = this.dataset.stepnum;
-            let url = `${window.origin}/step_ingredient/${stepId}/delete_step_ingredient`; 
-            data = {
-                'stepNumber': stepNumber
-            }
-            postData(url, data, stepId=stepId, itemToDelete='ingredient');
+            url = `${window.origin}/step_ingredient/${stepIngredientId}/delete_step_ingredient`; 
+            data = {'stepNumber': stepNumber}
+            postData(url, data, stepId='', itemToDelete='ingredient');
         })
     });
 
@@ -37,13 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
         let url = `${window.origin}/recipes/${recipeId}/add_step`;
 
         let data = {
-            'step_number': steps + 1,
+            'step_number': parseInt(steps) + 1,
             'hours': this.hours.value || 0,
             'minutes': this.minutes.value || 0, 
             'notes': this.notes.value,
             'recipe_id': recipeId
         }
         postData(url, data);
+        this.reset(); 
     }); 
 
     // Delete step from recipe 
@@ -55,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data = {
                 'stepNumber': stepNumber
             }
-            postData(url, data={}, stepId, itemToDelete='step')
+            postData(url, data=data, stepId, itemToDelete='step')
         })
     }); 
 
@@ -90,27 +93,32 @@ function postData(url = '', data = {}, stepId = '', itemToDelete = '') {
        cache: 'no-cache'
    }).then(function (response) {
         if (response.status !== 200) {
-            console.log(response); 
             return
         }
         else {
-            // If ingredient in data, add to ingredient list
-            if ('ingredient' in data) {
-                updateIngredients(data, stepId); 
-            }
-            // Add step 
-            else if ('notes' in data) {
-                addStepToWindow(data); 
-            }
-            // Remove step 
-            else if (itemToDelete === 'step') {
-                removeStepFromWindow(data, stepId);
-            }
+            response.json().then(function(resdata) {
+                // Add step card to window 
+                if ('notes' in resdata) {
+                    addStepToWindow(resdata); 
+                }
+                // Add new ingredient to step ingredient list 
+                else if ('ingredient' in resdata) {
+                    //addIngredient(data, stepId); 
+                }
+                // Delete step 
+                else if (itemToDelete === 'step') {
+                   removeStepFromWindow(resdata)
+                }
+                // Delete ingredient from step 
+                else if (itemToDelete === 'ingredient') {
+                    //remoteIngredientFromWindow
+                }
+            }); 
         }
    });
 }
 
-function updateIngredients(data, stepId) {
+function addIngredient(data, stepId) {
     // Insert new ingredient into step ingredient list 
     const tableRow = document.createElement('tr');
 
@@ -130,8 +138,13 @@ function updateIngredients(data, stepId) {
 function addStepToWindow(data) {
     const template = `<div class="col-12 recipe-step">
                         <div class="row">
+                            <div class="edit-button col-12">
+                                <button class="step-action step-delete" data-stepid="${data['step_id']}"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-1">
-                                 <h3 class="step-number" data-stepnum="{{ step.step_number }}">${data['step_number']}</h3>
+                                 <h3 class="step-number" data-stepnum="${data['step_number']}">${data['step_number']}</h3>
                             </div>
                             <div class="col-6">
                                 <h4>${data['hours']} H ${data['minutes']} MIN</h4>
@@ -148,14 +161,13 @@ function addStepToWindow(data) {
     currentEl.parentNode.insertBefore(fragment, currentEl);
 }
 
-function removeStepFromWindow(data, stepId) {
-    let elementId = `step-${stepId}`;
-    // Update step numbers in other steps 
-    document.querySelectorAll('.step-number').forEach(item => {
-        if (item.dataset.stepnum > data['stepNumber']) {
-            item.dataset.stepnum -= 1;
-            item.innerText = item.dataset.stepnum;
+function removeStepFromWindow(data) {
+    let elementId = `step-${data['step_id']}`;
+    var stepNums = document.querySelectorAll('.step-number'); 
+    for (i = 0; i < stepNums.length; i++) {
+        if (stepNums[i].dataset.stepnum > data['step_number']) {
+            stepNums[i].innerText -= 1;
         }
-    }); 
-    document.getElementById(`step-${stepId}`).remove(); 
+    }
+    document.getElementById(`step-${data['step_id']}`).remove(); 
 }

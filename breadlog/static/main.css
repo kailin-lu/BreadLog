@@ -21,6 +21,7 @@ body, html {
     float: left;
     padding: 15px;
 }
+
 .col-2 {
     width: 16.66%;
     float: left;
@@ -99,7 +100,9 @@ h1 {
 
 h1.recipe-name:hover {
     text-decoration: underline;
-    font-size: 29px;
+    padding-left: 3.4em; 
+    padding-right: 3.4em;
+
 }
 
 h2 {
@@ -145,6 +148,10 @@ nav {
     margin-right: 1em; 
     text-align: right; 
 } 
+
+hr.substep {
+    border-top: 1px dashed #547264;
+}
 
 .sticky-nav {
 	position: -webkit-sticky;
@@ -266,19 +273,6 @@ a.title, a.title:visited {
     color: #323A3B; 
 }
 
-button.recipe-name {
-    font-size: 16px;
-    font-family: 'Raleway';
-    font-weight: 300; 
-    transition-duration: 0.4s;
-    padding: .2em .4em;
-}
-
-button.recipe-name:hover {
-    color:white; 
-    background-color:#9CB7A6;
-}
-
 input.step_form {
     border: 1px solid #8b9697;
 }
@@ -298,7 +292,7 @@ textarea {
 }
 
 .new-step {
-    border: 1px solid #323A3B;
+    border: 5px solid #323A3B;
     border-radius: 5px; 
 }
 
@@ -315,6 +309,69 @@ span:before{
     color: #323A3B; 
     display: inline-block;
     padding-bottom: 0; 
+}
+
+.box-header {
+    border:3px solid #323A3B;
+    margin-top: 0;
+    margin-left: 3em; 
+    margin-right: 3em;  
+    margin-bottom: 0;
+}
+
+
+.box-recipe {
+    margin-left: 3em; 
+    margin-right: 3em;  
+    position: relative;
+}
+
+.box-recipe button {
+    position: absolute; 
+    top: 50%; 
+    left: 10%;
+    border-radius: 5px;
+    background-color: rgb(249, 245, 236, 0.8); 
+    font-size: 1.1em;
+    padding: 1em 2em;
+    border: none; 
+    font-family: 'Raleway';
+    transition: .2s ease;
+}
+
+.box-recipe img {
+    height: 150px; 
+    box-shadow: 0 4px 4px 0 rgb(0,0,0,0.2); 
+	-webkit-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+    filter: grayscale(50%);
+}
+
+.box-recipe:hover img {
+    filter: grayscale(0%);
+    box-shadow: 0 8px 8px 0 rgb(0,0,0,0.2); 
+}
+
+.edit-image-title {
+    position: relative; 
+}
+
+.edit-image-title img {
+    height: 400px; 
+}
+
+.edit-image-title h1 {
+    position: absolute; 
+    color: black;
+    transform: translate(-50%, -50%);
+    top: 50%; 
+    left: 50%;
+    background-color: rgb(249, 245, 236, 0.7); 
+    padding-left: 3em; 
+    padding-right: 3em; 
+    padding-top: 2em; 
+    padding-bottom: 2em;
+    transition: 0.2s ease;
 }
 
 .banner {
@@ -425,6 +482,14 @@ img.banner-thin {
 a.button {
     border-radius: 15px;
     padding: 0.7em;
+    transition: 0.2s ease; 
+}
+
+a.button:hover {
+    border-radius: 15px;
+    padding: 0.7em;
+    background-color: #547264; 
+    color: #F9F5EC;
 }
 
 .call-to-action {
@@ -480,7 +545,7 @@ a.button {
 
 button.step-action {
     border: none; 
-    transition-duration: 0.1s; 
+    transition: 0.1s ease; 
 }
 
 button.step-action:hover {

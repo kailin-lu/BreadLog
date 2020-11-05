@@ -57,6 +57,11 @@ def recipes():
     form = RecipeForm()
     user_id = current_user.id
     recipes = Recipe.query.filter_by(user_id=user_id).order_by(Recipe.created_at).all()
+    
+    # Time calculation for first recipe displayed 
+    hours = recipes[0].total_minutes // 60 
+    minutes = recipes[0].total_minutes % 60 
+    
     if request.method == 'POST':
         if form.validate_on_submit():
             recipe_name = form.recipe_name.data
@@ -68,7 +73,7 @@ def recipes():
                 return redirect(url_for('edit_recipe', recipe_id=new_recipe.id))
             except:
                 return 'Something went wrong'
-    return render_template('recipes.html', form=form, recipes=recipes)
+    return render_template('recipes.html', form=form, recipes=recipes, hours=hours, minutes=minutes)
 
 
 @app.route('/recipes/edit/<int:recipe_id>', methods=['GET'])
@@ -95,7 +100,14 @@ def add_step(recipe_id):
     try: 
         db.session.add(new_step) 
         db.session.commit()
-        return make_response(jsonify({'message': 'successful'}, 200))
+        db.session.refresh(new_step)
+        return make_response(jsonify({
+            'step_number': total_steps, 
+            'step_id': new_step.id, 
+            'minutes': new_step.minutes, 
+            'hours': new_step.hours, 
+            'notes': new_step.notes
+            }, 200))
     except SQLAlchemyError as e: 
         return f'Error {e.orig} Parameters {e.params}'
 
@@ -103,10 +115,11 @@ def add_step(recipe_id):
 @app.route('/delete_step/<int:step_id>', methods=['POST'])
 def delete_step(step_id):
     step_to_delete = Step.query.get_or_404(step_id)
+    step_id = step_to_delete.id
     recipe_id = step_to_delete.recipe.id
-    msg = ''
-    if step_to_delete.minutes > 0:
-        step_to_delete.recipe.total_minutes -= step_to_delete.minutes
+    # Time calculation
+    if step_to_delete.minutes > 0 or step_to_delete.hours > 0:
+        step_to_delete.recipe.total_minutes -= step_to_delete.hours * 60 + step_to_delete.minutes
     step_to_delete.recipe.total_steps = len(step_to_delete.recipe.steps) - 1
     step_number = step_to_delete.step_number
     # shift step numbers after step up
@@ -116,7 +129,9 @@ def delete_step(step_id):
     try:        
         db.session.delete(step_to_delete)
         db.session.commit()
-        res = make_response(jsonify({'message': 'delete successful'}), 200)
+        res = make_response(jsonify({
+            'step_id': step_id, 
+            'step_number': step_number}), 200)
         return res 
     except SQLAlchemyError as e: 
         return f'Error {e.orig} Parameters {e.params}'
@@ -163,7 +178,6 @@ def add_step_ingredient(step_id):
     req = request.get_json() 
     ingredient = req['ingredient']
     weight = req['weight']
-    print(req)
     new_step_ingredient = StepIngredient(step_id=step_id, ingredient=ingredient, weight=weight)
     try: 
         db.session.add(new_step_ingredient) 
@@ -180,8 +194,8 @@ def delete_step_ingredient(step_ingredient_id):
     try: 
         db.session.delete(step_ingredient)
         db.session.commit() 
-    except: 
-        return 'Error deleting step ingredient'
+    except SQLAlchemyError as e: 
+        return str(e.orig) + ' Params ' + str(e.params)
 
 
 # sum ingredient totals in recipe 
@@ -203,12 +217,6 @@ def sum_recipe_ingredients(recipe):
         else: 
             ingredient_list[ingr].append(0)
     return ingredient_list
-
-
-# Add ingredient to database 
-@app.route('/add_ingredient')
-def add_ingredient():
-    pass
 
 
 @app.route('/logout')

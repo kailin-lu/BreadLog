@@ -30,22 +30,24 @@
             </fieldset>
         </form>
         <br>
-        {% if recipes|length < 1 %}
-        <h4>No recipes yet. Try creating a new one.</h4> 
-        {% else %}
-        <div class="box">
-            <h3 class="table-header">RECIPE BOX</h3>
-            <table>
+        <div class="box-container">
+            {% if recipes|length < 1 %}
+            <h4>No recipes yet. Try creating a new one.</h4> 
+            {% else %}
+            <div class="box-header">
+                <h3 class="table-header">RECIPE BOX</h3>
+            </div>
+            <br>
+            <div class="box">
                 {% for recipe in recipes %}
-                    <tr>
-                        <td><button class="recipe-name" data-name="{{ recipe.id }}">{{ recipe.name }}</button></td>
-                        <td><a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}"><i class="fa fa-edit"></i></a></td>
-                        <td><a href="{{ url_for('delete_recipe', recipe_id=recipe.id) }}"><i class="fa fa-trash"></i></a></td>
-                    </tr>
+                    <div class="box-recipe">
+                        <img src="static/images/breadlist-1.jpg">
+                        <button data-name="{{ recipe.id }}">{{ recipe.name }}</button>
+                    </div>
                 {% endfor %}
-            </table>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
     <!--On the right we'll have create new recipe + space to load existing recipe-->
     <div class="col-8">
@@ -55,14 +57,17 @@
                 <p>No recipes yet, create one to start</p>
                 {% else %}
                 <!--Show information for the first recipe-->
-                <h1>{{ recipes[0].name }}</h1>
+                <h1>{{ recipes[0].name }}</h1><span></span>
+                <a class="title-edit" href="{{ url_for('edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
+                <a class="title-edit" href="{{ url_for('delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
                 <hr>
-                <p>Total time: {{ recipes[0].total_minutes }} minutes</p>
+                <p>Total time: {{ hours }} hours {{ minutes }} minutes</p>
                 <h4>Ingredients</h4>
                 <p>PLACEHOLDER FOR TOTAL INGREDIENTS LIST</p>
                 {% for step in recipes[0].steps %}
-                <h4>Step {{ step.step_number }} </h4>
-                <p>Time: {{ step.minutes }} minutes  START TIMER</p>
+                <h4>Step {{ step.step_number }}:  {{ step.hours }} h {{ step.minutes }} min</h4>
+                <p>START TIMER</p>
+                <p>{{ step.notes }}</p>
                 {% endfor %}
                 {% endif %}
             </div>

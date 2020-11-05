@@ -32,7 +32,7 @@ class Recipe(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id'),
                         nullable=False)  # User does not have to be logged in
-    steps = db.relationship('Step', backref='recipe', lazy=False, order_by='Step.step_number')
+    steps = db.relationship('Step', backref='recipe', lazy=False, order_by='Step.step_number', cascade="all, delete-orphan")
 
     def __init__(self, name, user_id):
         self.name = name
@@ -92,7 +92,7 @@ class StepIngredient(db.Model):
     weight: float
     created_at: datetime
     
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     ingredient = db.Column(db.String(256), nullable=True)
     step_id = db.Column(db.Integer, db.ForeignKey('step.id'), nullable=False)
     weight = db.Column(db.Float, nullable=False)

@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
         buttons[i].onclick = function() {
             var url = 'recipe/id/' + this.dataset.name; 
             displayRecipe(url); 
-            // makeRequest(url); 
         }; 
     }
 }); 

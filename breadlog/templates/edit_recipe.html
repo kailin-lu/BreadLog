@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block script %}
-<script src="../../static/js/add_ingredient.js"></script>
+<script src="../../static/js/edit_recipe.js"></script>
 {% endblock %}
 
 
@@ -15,7 +15,8 @@
 
 {% block body %}
 <div class="row">
-    <div class="col-12">
+    <div class="col-12 edit-image-title">
+        <img src="{{ url_for('static', filename='images/breadlist-2.jpg') }}">
         <h1 class="recipe-name show">{{ recipe.name }}</h1>
     </div>
 </div>
@@ -84,8 +85,8 @@
                             <td>{{ ingredient.ingredient }}</td>
                             <td class="weight-col">{{ ingredient.weight }}</td>
                             <td class="edit-col placeholder-hide">
-                                <i class="fa fa-edit edit-col-icon"></i>
-                                <i class="fa fa-times edit-col-icon"></i>
+                                <i class="fa fa-edit edit-col-icon edit-step-ingredient"></i>
+                                <i class="fa fa-times edit-col-icon delete-step-ingredient"></i>
                             </td>
                             <td></td>
                         </tr>
