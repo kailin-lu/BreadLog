@@ -471,12 +471,33 @@ img.banner-thin {
 }
 
 .small-banner {
+    position: relative; 
+    overflow: hidden;
+}
+
+.small-banner h4 {
     text-align: center;
-    margin-top: 10px;
-    font-weight: 300;
+    position: absolute; 
     font-family: 'Heebo'; 
-    font-size: 1.1em;
+    font-size: 1.2em;
+    font-weight: 300;
     color: #323A3B; 
+    transform: translate(-50%, -50%);
+    top: 50%; 
+    left: 50%;
+    padding-top: 10%;
+    padding-bottom: 10%;
+    padding-left: 10%;
+    padding-right: 10%;
+    background-color: rgb(249, 245, 236, 0.8);
+}
+
+.small-banner img {
+    transition: 0.3s ease;
+}
+
+.small-banner:hover img {
+    transform: scale(1.1);
 }
 
 a.button {
@@ -520,6 +541,10 @@ a.button:hover {
     visibility: hidden; 
 }
 
+.display-step {
+    border: 1px solid  rgba(0,0,0,0.2); 
+}
+
 
 .recipe-step {
     margin-left: 5em;
@@ -553,3 +578,18 @@ button.step-action:hover {
     color:#FFF;
 }
 
+.reset {
+    font-size: 0.8em; 
+    color: #323A3B;
+    border: 1px solid #94a6a8;
+    background-color: #F9F5EC;
+    border-radius: 0.3em;
+    width: 50%;
+    text-align: center;
+}
+
+.reset:hover {
+    color: #F9F5EC;
+    background-color: #9CB7A6;
+    border: none;
+}

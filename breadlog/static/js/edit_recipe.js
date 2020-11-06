@@ -1,34 +1,15 @@
 // Scripts for adding ingredients on recipe edit page 
-
 document.addEventListener('DOMContentLoaded', function() {
-    var data; 
-    var stepId; 
-    var url; 
+    var data, url; 
 
     // Add new ingredient to step 
     document.querySelectorAll('.form-ingredient').forEach(item => {
-        item.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            stepId = this.dataset.stepid;
-            url = `${window.origin}/step/${stepId}/add_step_ingredient`;
-            data = {
-                'ingredient': this.ingredient.value.toUpperCase(), 
-                'weight': this.weight.value
-            }
-            postData(url, data, stepId);
-        }); 
+        item.addEventListener('submit', (e) => addIngredientHandler.apply(item, [e]));
     }); 
 
     // Delete ingredient from step 
     document.querySelectorAll('.delete-step-ingredient').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault(); 
-            let stepIngredientId = this.dataset.step-ingredient-id; 
-            let stepNumber = this.dataset.stepnum;
-            url = `${window.origin}/step_ingredient/${stepIngredientId}/delete_step_ingredient`; 
-            data = {'stepNumber': stepNumber}
-            postData(url, data, stepId='', itemToDelete='ingredient');
-        })
+        item.addEventListener('click', deleteIngredientHandler);
     });
 
     // Add step to recipe 
@@ -51,15 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Delete step from recipe 
     document.querySelectorAll('.step-delete').forEach(item => {
-        item.addEventListener('click', function(e) {
-            let stepId = this.dataset.stepid;
-            let url = `${window.origin}/delete_step/${stepId}`;
-            let stepNumber = this.dataset.stepnum;
-            data = {
-                'stepNumber': stepNumber
-            }
-            postData(url, data=data, stepId, itemToDelete='step')
-        })
+        item.addEventListener('click', deleteStepHandler);
     }); 
 
     // On hover 
@@ -82,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function postData(url = '', data = {}, stepId = '', itemToDelete = '') {
+function postData(url = '', data = {}) {
     fetch(url, {
        method: 'POST', 
        cors: 'same-origin',
@@ -98,28 +71,54 @@ function postData(url = '', data = {}, stepId = '', itemToDelete = '') {
         else {
             response.json().then(function(resdata) {
                 // Add step card to window 
-                if ('notes' in resdata) {
-                    addStepToWindow(resdata); 
+                if (resdata['action'] === 'add' && resdata['item'] === 'step') {
+                    addStepToWindow(resdata);
                 }
                 // Add new ingredient to step ingredient list 
-                else if ('ingredient' in resdata) {
+                else if (resdata['action'] === 'add' && resdata['item'] === 'ingredient') {
                     //addIngredient(data, stepId); 
                 }
                 // Delete step 
-                else if (itemToDelete === 'step') {
+                else if (resdata['action'] === 'delete' && resdata['item'] === 'step') {
                    removeStepFromWindow(resdata)
                 }
                 // Delete ingredient from step 
-                else if (itemToDelete === 'ingredient') {
+                else if (resdata['action'] === 'delete' && resdata['item'] === 'ingredient') {
                     //remoteIngredientFromWindow
                 }
             }); 
         }
    });
 }
+// Event listener callback for adding ingredient to step
+function addIngredientHandler(e) {
+    e.preventDefault(); 
+    url = `${window.origin}/step/${this.dataset.stepid}/add_step_ingredient`;
+    data = {
+        'ingredient': this.ingredient.value.toUpperCase(), 
+        'weight': this.weight.value
+    };
+    postData(url, data);
+    this.reset(); 
+}
 
-function addIngredient(data, stepId) {
-    // Insert new ingredient into step ingredient list 
+// Event listener callback for deleting ingredient from step
+function deleteIngredientHandler() {
+    let stepIngredientId = this.dataset.step-ingredient-id; 
+    let stepNumber = this.dataset.stepnum;
+    url = `${window.origin}/step/${stepNumber}/step_ingredient/${stepIngredientId}/delete`; 
+    postData(url);
+}
+
+// Event listener callback for deleting step 
+function deleteStepHandler() {
+    let stepId = this.dataset.stepid;
+    let url = `${window.origin}/delete_step/${stepId}`;
+    postData(url);
+}
+
+// Insert new ingredient into step ingredient list 
+function addIngredient(data) {
     const tableRow = document.createElement('tr');
 
     const ingredientNode = document.createElement('td');
@@ -132,37 +131,9 @@ function addIngredient(data, stepId) {
     tableRow.append(weightNode); 
 
     document.getElementById(`ingredient-form-${stepId}`).append(tableRow);
-    // Recalculate ingredient totals at top 
-}
-
-function addStepToWindow(data) {
-    const template = `<div class="col-12 recipe-step">
-                        <div class="row">
-                            <div class="edit-button col-12">
-                                <button class="step-action step-delete" data-stepid="${data['step_id']}"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-1">
-                                 <h3 class="step-number" data-stepnum="${data['step_number']}">${data['step_number']}</h3>
-                            </div>
-                            <div class="col-6">
-                                <h4>${data['hours']} H ${data['minutes']} MIN</h4>
-                                <div class="col-12 step-notes">
-                                    <p>${data['notes']}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row"></div>
-                      </div>
-                      <div class="col-12"><br></div>`
-    const fragment = document.createRange().createContextualFragment(template);
-    const currentEl = document.getElementById('new-step-form');
-    currentEl.parentNode.insertBefore(fragment, currentEl);
 }
 
 function removeStepFromWindow(data) {
-    let elementId = `step-${data['step_id']}`;
     var stepNums = document.querySelectorAll('.step-number'); 
     for (i = 0; i < stepNums.length; i++) {
         if (stepNums[i].dataset.stepnum > data['step_number']) {
@@ -170,4 +141,51 @@ function removeStepFromWindow(data) {
         }
     }
     document.getElementById(`step-${data['step_id']}`).remove(); 
+    document.getElementById(`break-${data['step_id']}`).remove(); 
+}
+
+function addStepToWindow(data) {
+    const template = `<div class="col-12 recipe-step" id="step-${data['step_id']}" data-stepnum="${data['step_number']}">
+                        <div class="row">
+                            <div class="edit-button col-12">
+                                <button class="step-action move-up" data-stepid="{{ step.id }}"><i class="fa fa-chevron-up"></i></button>
+                                <button id="step-delete-${data['step_id']}" class="step-action step-delete" data-stepid="${data['step_id']}"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                            <div class="col-1">
+                                <h3 class="step-number" data-stepnum="${data['step_number']}">${data['step_number']}</h3>
+                            </div>
+                            <div class="col-6">
+                                <h4>${data['hours']} H ${data['minutes']} MIN</h4>
+                                <div class="col-12 step-notes">
+                                    <p>${data['notes']}</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <br>
+                                <table class="ingredient-list-table" id="ingredient-list-${data['step_id']}">
+                                    <tr>
+                                        <th>INGREDIENT</th>
+                                        <th>WEIGHT (g)</th>
+                                    </tr>
+                                </table>
+                                <div class="form-ingredient-div" id="ingredient-form-${data['step_id']}">
+                                <br>
+                                <form id="form-ingredient-${data['step_id']}" class="form-ingredient" data-stepid="${data['step_id']}" data-recipeid="-${data['recipe_id']}">
+                                    <label for="ingredient">Add Ingredient to Step</label><br>
+                                    <input class="ingredient-input" type="text" required name="ingredient" placeholder="INGREDIENT NAME">
+                                    <input class="ingredient-input" type="number" required step=".01" min="0" name="weight" placeholder="WEIGHT IN GRAMS">
+                                    <input class="ingredient-add-btn" type="submit" data-stepid="-${data['step_id']}" value="ADD">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-12" id="break-${data['step_id']}"><br></div>`
+                     
+    const fragment = document.createRange().createContextualFragment(template);
+    const currentEl = document.getElementById('new-step-form');
+    currentEl.parentNode.insertBefore(fragment, currentEl);
+    // Event listeners 
+    document.querySelector(`#step-delete-${data['step_id']}`).addEventListener('click', deleteStepHandler);
+    let addIngr = document.querySelector(`#form-ingredient-${data['step_id']}`);
+    addIngr.addEventListener('submit', (e) => addIngredientHandler.apply(addIngr, [e]));
 }

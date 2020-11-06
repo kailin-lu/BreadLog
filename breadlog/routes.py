@@ -2,10 +2,18 @@ import sys
 from collections import defaultdict
 from flask import render_template, url_for, request, redirect, flash, jsonify, make_response
 from breadlog import app, db, bcrypt
-from breadlog.models import Recipe, Step, User, StepIngredient
+from breadlog.models import Recipe, Step, User, StepIngredient, RecipeQuery
 from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm, AddIngredientForm
 from flask_login import login_user, current_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
+
+
+def make_err_response(e): 
+    err = {
+            'orig': str(e.orig), 
+            'params': str(e.params)
+        }
+    return make_response(jsonify(err), 404)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -26,7 +34,7 @@ def register():
         return ' '.join([str(i) for i in errors])
     if form.validate_on_submit():
         hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(form.email.data, hashed_pw)
+        new_user = User(form.name.data, form.email.data, hashed_pw)
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -56,12 +64,14 @@ def login():
 def recipes():
     form = RecipeForm()
     user_id = current_user.id
-    recipes = Recipe.query.filter_by(user_id=user_id).order_by(Recipe.created_at).all()
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+    # recipes = RecipeQuery.get_user_recipes_with_default(user_id)    
     
-    # Time calculation for first recipe displayed 
+    # Time calculation for first recipe displayed if recipes exist
     hours = recipes[0].total_minutes // 60 
     minutes = recipes[0].total_minutes % 60 
-    
+    ingredients = sum_recipe_ingredients(recipes[0])
+        
     if request.method == 'POST':
         if form.validate_on_submit():
             recipe_name = form.recipe_name.data
@@ -73,7 +83,8 @@ def recipes():
                 return redirect(url_for('edit_recipe', recipe_id=new_recipe.id))
             except:
                 return 'Something went wrong'
-    return render_template('recipes.html', form=form, recipes=recipes, hours=hours, minutes=minutes)
+    return render_template('recipes.html', form=form, recipes=recipes, 
+                           hours=hours, minutes=minutes,ingredients=ingredients)
 
 
 @app.route('/recipes/edit/<int:recipe_id>', methods=['GET'])
@@ -104,10 +115,13 @@ def add_step(recipe_id):
         return make_response(jsonify({
             'step_number': total_steps, 
             'step_id': new_step.id, 
+            'recipe_id': recipe.id, 
             'minutes': new_step.minutes, 
             'hours': new_step.hours, 
-            'notes': new_step.notes
-            }, 200))
+            'notes': new_step.notes, 
+            'item': 'step',
+            'action': 'add' 
+            }), 200)
     except SQLAlchemyError as e: 
         return f'Error {e.orig} Parameters {e.params}'
 
@@ -131,7 +145,9 @@ def delete_step(step_id):
         db.session.commit()
         res = make_response(jsonify({
             'step_id': step_id, 
-            'step_number': step_number}), 200)
+            'step_number': step_number, 
+            'item': 'step', 
+            'action': 'delete'}), 200)
         return res 
     except SQLAlchemyError as e: 
         return f'Error {e.orig} Parameters {e.params}'
@@ -168,8 +184,8 @@ def delete_recipe(recipe_id):
         db.session.delete(recipe_to_delete)
         db.session.commit()
         return redirect('/recipes')
-    except:
-        return 'Error deleting recipe'
+    except SQLAlchemyError as e:
+        return make_err_response(e)
 
 
 # Add ingredient to step 
@@ -182,20 +198,22 @@ def add_step_ingredient(step_id):
     try: 
         db.session.add(new_step_ingredient) 
         db.session.commit() 
-        res = make_response(jsonify({'ingredient': 'received'}), 200) 
-    except: 
-        res = make_response(jsonify({'ingredient': 'not received'}), 404) 
-    return res
+        db.session.refresh(new_step_ingredient)
+        resdata = {}
+        res = make_response(jsonify(resdata), 200) 
+        return res
+    except SQLAlchemyError as e: 
+        return make_err_response(e)
 
 
-@app.route('/step_ingredient/<string:step_ingredient_id>/delete_step_ingredient', methods=['POST'])
-def delete_step_ingredient(step_ingredient_id): 
+@app.route('/step/<int:step_id>/step_ingredient/<int:step_ingredient_id>/delete', methods=['POST'])
+def delete_step_ingredient(step_id, step_ingredient_id): 
     step_ingredient = StepIngredient.query.get_or_404(step_ingredient_id)
     try: 
         db.session.delete(step_ingredient)
         db.session.commit() 
     except SQLAlchemyError as e: 
-        return str(e.orig) + ' Params ' + str(e.params)
+        return make_err_response(e)
 
 
 # sum ingredient totals in recipe 

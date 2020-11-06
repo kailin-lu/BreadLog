@@ -26,6 +26,8 @@
             {{ form.hidden_tag() }}
             {{ form.csrf_token }}
             <fieldset>
+                <div class="col-6 form-label">{{ form.name.label() }}</div>
+                <div class="col-6 form-value">{{ form.name() }}</div>
                 <div class="col-6 form-label">{{ form.email.label() }}</div>
                 <div class="col-6 form-value">{{ form.email() }}</div>
                 <div class="col-6 form-label">{{ form.password.label() }}</div>

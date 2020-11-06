@@ -10,7 +10,7 @@
     <div class="content-title">
         <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
         <br>
-        <h4>Welcome back, {{ current_user.email }}</h4>
+        <h4>Welcome back, {{ current_user.name }}</h4>
     </div> 
     {% endif %}
 {% endblock %}
@@ -40,9 +40,9 @@
             <br>
             <div class="box">
                 {% for recipe in recipes %}
-                    <div class="box-recipe">
+                    <div class="box-recipe" data-recipeid="{{ recipe.id }}">
                         <img src="static/images/breadlist-1.jpg">
-                        <button data-name="{{ recipe.id }}">{{ recipe.name }}</button>
+                        <button>{{ recipe.name }}</button>
                     </div>
                 {% endfor %}
             </div>
@@ -51,34 +51,61 @@
     </div>
     <!--On the right we'll have create new recipe + space to load existing recipe-->
     <div class="col-8">
-        <div class="col-8">
-            <div id="placeholder"class="placeholder-show">
-                {% if recipes | length < 1 %}
-                <p>No recipes yet, create one to start</p>
-                {% else %}
-                <!--Show information for the first recipe-->
-                <h1>{{ recipes[0].name }}</h1><span></span>
-                <a class="title-edit" href="{{ url_for('edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
-                <a class="title-edit" href="{{ url_for('delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
-                <hr>
-                <p>Total time: {{ hours }} hours {{ minutes }} minutes</p>
-                <h4>Ingredients</h4>
-                <p>PLACEHOLDER FOR TOTAL INGREDIENTS LIST</p>
-                {% for step in recipes[0].steps %}
-                <h4>Step {{ step.step_number }}:  {{ step.hours }} h {{ step.minutes }} min</h4>
-                <p>START TIMER</p>
-                <p>{{ step.notes }}</p>
-                {% endfor %}
-                {% endif %}
+        <div id="placeholder" class="placeholder-show">
+            {% if recipes | length < 1 %}
+            <p>No recipes yet, create one to start</p>
+            {% else %}
+            <!--Show information for the first recipe-->
+            <h1>{{ recipes[0].name }}</h1><span></span>
+            <a class="title-edit" href="{{ url_for('edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
+            <a class="title-edit" href="{{ url_for('delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
+            <hr>
+            <p>Total time: {{ hours }} hours {{ minutes }} minutes</p>
+            
+            <div class="row">
+            <div class="col-11">
+                {% if ingredients | length < 1 %} 
+                    <p>No ingredients added to steps yet. Consider editing this recipe</p>
+                {% else %} 
+                <table id="ingredients-total-edit">
+                    <tr>
+                        <th>INGREDIENT</th>
+                        <th>TOTAL WEIGHT</th>
+                        <th>BAKER'S PERCENTAGE</th>
+                    </tr>
+                        {% for ingr, weight in ingredients.items() %}
+                        <tr>
+                            <td>{{ ingr }}</td>
+                            <td>{{ weight[0] }}g</td>
+                            <td>{{ weight[1] }}%</td>
+                        </tr>
+                        {% endfor %}
+                </table>
+                {% endif %}          
             </div>
-            <div id="requested-recipe" class="placeholder-hide">
-                <h1 id="recipe-name"></h1>
-                <hr>
-                <p id="recipe-min"></p>
-                <h4>Ingredients</h4>
-                <p>PLACEHOLDER FOR TOTAL INGREDIENTS LIST</p>
-                <div id="steps"></div>
+            <div class="col-1"></div>
             </div>
+
+            {% for step in recipes[0].steps %}
+            <div class="row">
+                <div class="display-step">
+                <div class="col-3">
+                    <h4>Step {{ step.step_number }}:  {{ step.hours }} h {{ step.minutes }} min</h4>
+                    <p class="timer">START TIMER</p>
+                    <p class="reset placeholder-show">reset</p>
+                </div>
+                <div class="col-3">
+                    {% for ingr in step.ingredients %}
+                    <p>{{ ingr.ingredient }} {{ingr.weight }}g</p>
+                    {% endfor %}
+                </div>
+                <div class="col-5"><p>{{ step.notes }}</p></div>
+            </div>
+            <div class="col-1"></div>
+            </div>
+            <br>
+            {% endfor %}
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %} 

@@ -39,6 +39,17 @@ class Recipe(db.Model):
         self.total_steps = 0
         self.total_minutes = 0
         self.user_id = user_id
+        
+        
+class RecipeQuery():
+    @staticmethod
+    def get_user_recipes_with_default(user_id, default_user_id='276007fc-a00c-415f-b990-581541d92434'):
+        user_recipes = Recipe.query.filter_by(user_id=user_id).order_by(Recipe.created_at).all()
+        # if user_id != default_user_id: 
+        #     default_recipe = Recipe.query.filter_by(user_id=default_user_id).first() 
+        #     if default_recipe: 
+        #         user_recipes.append(default_recipe)
+        return user_recipes
 
 
 @dataclass
@@ -86,7 +97,7 @@ class Ingredient(db.Model):
 
 @dataclass
 class StepIngredient(db.Model):
-    id: str
+    id: int
     ingredient: str
     step_id: int
     weight: float
