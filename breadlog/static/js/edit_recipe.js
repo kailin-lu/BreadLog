@@ -37,21 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // On hover 
     document.querySelectorAll('.ingredient-list-table tr').forEach(item => {
-        item.addEventListener('mouseenter', function(event) {
-            let editCols = event.target.getElementsByClassName('placeholder-hide'); 
-            if (editCols.length === 1) {
-                editCols[0].classList.add('placeholder-show');
-                editCols[0].classList.remove('placeholder-hide');
-            }
-        });
-
-        item.addEventListener('mouseleave', function(event) {
-            let editCols = event.target.getElementsByClassName('placeholder-show'); 
-            if (editCols.length === 1) {
-                editCols[0].classList.add('placeholder-hide');
-                editCols[0].classList.remove('placeholder-show');
-            }
-        });
+        item.addEventListener('mouseenter', (e) => ingredientEnterEditHandler(e));
+        item.addEventListener('mouseleave', (e) => ingredientLeaveEditHandler(e));
     });
 });
 
@@ -76,15 +63,23 @@ function postData(url = '', data = {}) {
                 }
                 // Add new ingredient to step ingredient list 
                 else if (resdata['action'] === 'add' && resdata['item'] === 'ingredient') {
-                    //addIngredient(data, stepId); 
+                    addIngredient(resdata); 
                 }
                 // Delete step 
                 else if (resdata['action'] === 'delete' && resdata['item'] === 'step') {
-                   removeStepFromWindow(resdata)
+                   removeStepFromWindow(resdata);
                 }
                 // Delete ingredient from step 
                 else if (resdata['action'] === 'delete' && resdata['item'] === 'ingredient') {
-                    //remoteIngredientFromWindow
+                   removeIngredientFromStep(resdata);
+                }
+
+                else if (resdata['action'] === 'moveup') {
+                    moveStepUp(resdata);
+                }
+
+                else if (resdata['action'] === 'movedown') {
+                    moveStepDown(resdata);
                 }
             }); 
         }
@@ -104,9 +99,10 @@ function addIngredientHandler(e) {
 
 // Event listener callback for deleting ingredient from step
 function deleteIngredientHandler() {
-    let stepIngredientId = this.dataset.step-ingredient-id; 
-    let stepNumber = this.dataset.stepnum;
-    url = `${window.origin}/step/${stepNumber}/step_ingredient/${stepIngredientId}/delete`; 
+    let stepIngredientId = this.dataset.ingredientid; 
+    let stepId = this.dataset.stepid;
+    url = `${window.origin}/step/${stepId}/step_ingredient/${stepIngredientId}/delete`; 
+    console.log(url);
     postData(url);
 }
 
@@ -117,20 +113,65 @@ function deleteStepHandler() {
     postData(url);
 }
 
+// On hover show edit cell
+function ingredientEnterEditHandler(e) {
+    let editCols = e.target.getElementsByClassName('placeholder-hide'); 
+    if (editCols.length === 1) {
+        editCols[0].classList.add('placeholder-show');
+        editCols[0].classList.remove('placeholder-hide');
+    }
+}
+
+// On leave hover hide edit cell
+function ingredientLeaveEditHandler(e) {
+    let editCols = e.target.getElementsByClassName('placeholder-show'); 
+    if (editCols.length === 1) {
+        editCols[0].classList.add('placeholder-hide');
+        editCols[0].classList.remove('placeholder-show');
+    }
+}
+
+function moveStepUp() {
+
+}
+
+function moveStepDown() {
+
+}
+
 // Insert new ingredient into step ingredient list 
 function addIngredient(data) {
-    const tableRow = document.createElement('tr');
+    const table = document.getElementById(`ingredient-list-${data['step_id']}`);
+    const row = table.insertRow(); 
+    row.setAttribute('id', `row-${data['step_ingredient_id']}`);
+    let ingrCell = row.insertCell(0); 
+    let weightCell = row.insertCell(1);
+    
+    let editCell = row.insertCell(2);
+    editCell.classList.add('edit-col', 'placeholder-hide');
 
-    const ingredientNode = document.createElement('td');
-    ingredientNode.innerText = data['ingredient']; 
+    // let editIcon = document.createElement('i');
+    // editIcon.classList.add('fa', 'fa-edit', 'edit-col-icon', 'edit-step-ingredient');
+    
+    let deleteIcon = document.createElement('i');
+    deleteIcon.classList.add('fa','fa-times', 'edit-col-icon', 'delete-step-ingredient');
+    deleteIcon.setAttribute('data-stepid', `${data['step_id']}`); 
+    deleteIcon.setAttribute('data-ingredientid', `${data['step_ingredient_id']}`); 
 
-    const weightNode = document.createElement('td'); 
-    weightNode.innerText = data['weight']; 
+    ingrCell.innerText = data['ingredient']; 
+    weightCell.innerText = data['weight']; 
+    // editCell.appendChild(editIcon);
+    editCell.appendChild(deleteIcon);
 
-    tableRow.append(ingredientNode); 
-    tableRow.append(weightNode); 
+    // Add event listeners 
+    row.addEventListener('mouseenter', (e) => ingredientEnterEditHandler(e));
+    row.addEventListener('mouseleave', (e) => ingredientLeaveEditHandler(e)); 
+    deleteIcon.addEventListener('click', deleteIngredientHandler);
+}
 
-    document.getElementById(`ingredient-form-${stepId}`).append(tableRow);
+// Remove deleted ingredient from step ingredient list 
+function removeIngredientFromStep(data) {
+    document.getElementById(`row-${data['step_ingredient_id']}`).remove(); 
 }
 
 function removeStepFromWindow(data) {

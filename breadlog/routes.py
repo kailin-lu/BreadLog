@@ -153,7 +153,7 @@ def delete_step(step_id):
         return f'Error {e.orig} Parameters {e.params}'
 
 
-@app.route('/move_step_up/<int:step_id>', methods=['GET', 'POST'])
+@app.route('/move_step_up/<int:step_id>', methods=['POST'])
 def move_step_up(step_id):
     step_to_move = Step.query.get_or_404(step_id)
     new_step_number = step_to_move.step_number - 1
@@ -161,11 +161,21 @@ def move_step_up(step_id):
     step_to_increment = [step for step in recipe.steps if step.step_number == new_step_number][0]
     step_to_increment.step_number += 1
     step_to_move.step_number = new_step_number
-    db.session.commit()
-    return redirect(url_for('edit_recipe', recipe_id=recipe.id))
+    try: 
+        db.session.commit()
+        resdata = {
+            'item': 'step', 
+            'action': 'moveup',
+            'new_step_number': new_step_number, 
+            'step_id': step_to_move.id
+        } 
+        return make_response(jsonify(resdata), 200)
+    except SQLAlchemyError as e:
+        return make_err_response(e)  
+        
 
 
-@app.route('/move_step_down/<int:step_id>', methods=['GET', 'POST'])
+@app.route('/move_step_down/<int:step_id>', methods=['POST'])
 def move_step_down(step_id):
     step_to_move = Step.query.get_or_404(step_id)
     new_step_number = step_to_move.step_number + 1
@@ -173,8 +183,17 @@ def move_step_down(step_id):
     step_to_decrement = [step for step in recipe.steps if step.step_number == new_step_number][0]
     step_to_decrement.step_number -= 1
     step_to_move.step_number = new_step_number
-    db.session.commit()
-    return redirect(url_for('edit_recipe', recipe_id=recipe.id))
+    try: 
+        db.session.commit()
+        resdata = {
+            'item': 'step', 
+            'action': 'movedown',
+            'new_step_number': new_step_number, 
+            'step_id': step_to_move.id
+        }
+        return make_response(jsonify(resdata), 200)
+    except SQLAlchemyError as e: 
+        return make_err_response(e)
 
 
 @app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
@@ -199,7 +218,14 @@ def add_step_ingredient(step_id):
         db.session.add(new_step_ingredient) 
         db.session.commit() 
         db.session.refresh(new_step_ingredient)
-        resdata = {}
+        resdata = {
+            'step_ingredient_id': new_step_ingredient.id,
+            'step_id': new_step_ingredient.step_id, 
+            'ingredient': ingredient, 
+            'weight': weight, 
+            'action': 'add', 
+            'item': 'ingredient'
+        }
         res = make_response(jsonify(resdata), 200) 
         return res
     except SQLAlchemyError as e: 
@@ -212,6 +238,12 @@ def delete_step_ingredient(step_id, step_ingredient_id):
     try: 
         db.session.delete(step_ingredient)
         db.session.commit() 
+        resdata = {
+            'step_ingredient_id': step_ingredient.id,
+            'action': 'delete',
+            'item': 'ingredient'
+        }
+        return make_response(jsonify(resdata), 200)
     except SQLAlchemyError as e: 
         return make_err_response(e)
 

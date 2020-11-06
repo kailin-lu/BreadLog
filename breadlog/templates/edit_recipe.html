@@ -28,7 +28,7 @@
     </div>
     {% else %}
         <!--Displays aggregated ingredients--> 
-        <div class="col-12">
+        <!-- <div class="col-12">
             <div class="col-2"></div>
             <div class="col-8">
                 <table id="ingredients-total-edit">
@@ -47,7 +47,7 @@
                 </table>
             </div>
             <div class="col-2"></div>
-        </div>
+        </div> -->
         <!--Displays steps-->
         <div class="col-12"><h2 id="steps">S T E P S</h2></div>
         {% for step in recipe.steps %}
@@ -81,12 +81,12 @@
                             <th>WEIGHT (g)</th>
                         </tr>
                         {% for ingredient in step.ingredients %}
-                        <tr>
+                        <tr id="row-{{ ingredient.id }}">
                             <td>{{ ingredient.ingredient }}</td>
                             <td class="weight-col">{{ ingredient.weight }}</td>
                             <td class="edit-col placeholder-hide">
-                                <i class="fa fa-edit edit-col-icon edit-step-ingredient"></i>
-                                <i class="fa fa-times edit-col-icon delete-step-ingredient"></i>
+                                <!-- <i class="fa fa-edit edit-col-icon edit-step-ingredient"></i> -->
+                                <i class="fa fa-times edit-col-icon delete-step-ingredient" data-stepid="{{ step.id }}" data-ingredientid="{{ ingredient.id }}"></i>
                             </td>
                             <td></td>
                         </tr>
@@ -133,7 +133,7 @@
 <!--Delete recipe-->
 <div class="row">
     <div class="col-12 delete-footer">
-        <a href="/delete_recipe/{{ recipe.id }}">Delete this recipe</a>
+        <a href="{{ url_for('recipes') }}">Back to Recipe Box</a> | <a href="/delete_recipe/{{ recipe.id }}">Delete this recipe</a>
     </div>
 </div>
 
