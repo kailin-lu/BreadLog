@@ -67,6 +67,9 @@ def recipes():
     user_id = current_user.id
     recipes = Recipe.query.filter_by(user_id=user_id).all()
     # recipes = RecipeQuery.get_user_recipes_with_default(user_id)    
+    if len(recipes) == 0:
+        return render_template('recipes.html', form=form, recipes=[], 
+                               hours=0, minutes=0, ingredients={})
     
     # Time calculation for first recipe displayed if recipes exist
     hours = recipes[0].total_minutes // 60 
