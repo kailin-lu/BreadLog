@@ -238,6 +238,8 @@ table {
 
 #ingredients-total-edit td {
     border-left: 1px solid #323A3B; 
+    font-size: 1em;
+    font-family: 'Lucinda Sans';
 }
 
 #ingredients-total-edit td:last-child {
@@ -251,7 +253,14 @@ table {
 #ingredients-total-edit th {
     background-color:  #323A3B; 
     color: #FFF;
-    font-family: 'Lucinda Sans'
+    font-family: 'Lucinda Sans';
+    font-size: 1em;
+}
+
+.step-ingredient-table td tr{
+    text-align: left; 
+    font-family: 'Raleway'; 
+    font-size: 0.4em; 
 }
 
 a.menu:hover {
@@ -542,9 +551,33 @@ a.button:hover {
 }
 
 .display-step {
-    border: 1px solid  rgba(0,0,0,0.2); 
+    border-top: 2px solid #8b9697;
+    margin-left: 2%; 
+    margin-right: 10%; 
+    padding-bottom: 5%; 
 }
 
+ul.ingr-list {
+    margin-top: 3%; 
+}
+
+.ingr-list li {
+    list-style-type: square; 
+    display: list-item;
+    text-align: left; 
+    margin-left: 30%; 
+}
+
+h5.display-time { 
+    font-family: 'Raleway';
+    display: inline; 
+    margin-left: 10%;     
+}
+
+p.display-notes {
+    margin-left: 10%; 
+    font-family: 'Heebo';
+}
 
 .recipe-step {
     margin-left: 5em;
@@ -592,4 +625,34 @@ button.step-action:hover {
     color: #F9F5EC;
     background-color: #9CB7A6;
     border: none;
+}
+
+.step-time {
+    font-family: 'Heebo'; 
+    font-size: 1em;
+    float: left; 
+}
+
+.display-step-number {
+    float: left; 
+}
+
+.timing-notes {
+    font-family: 'Raleway';
+    font-size: 1em;
+    margin: 0; 
+    padding: 0; 
+    text-align: center;
+}
+
+.time-calculator {
+    display: inline-block;
+}
+
+.start-time {
+    text-align: center;
+}
+
+#input-time {
+    font-size: 1.5em;
 }

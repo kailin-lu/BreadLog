@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 def make_err_response(e): 
+    """Helper to return error type and route parameters"""
     err = {
             'orig': str(e.orig), 
             'params': str(e.params)
@@ -166,8 +167,8 @@ def move_step_up(step_id):
         resdata = {
             'item': 'step', 
             'action': 'moveup',
-            'new_step_number': new_step_number, 
-            'step_id': step_to_move.id
+            'step_id': step_to_move.id,
+            'shifted_step_id': step_to_increment.id
         } 
         return make_response(jsonify(resdata), 200)
     except SQLAlchemyError as e:
@@ -188,7 +189,7 @@ def move_step_down(step_id):
         resdata = {
             'item': 'step', 
             'action': 'movedown',
-            'new_step_number': new_step_number, 
+            'shifted_step_id': step_to_decrement.id, 
             'step_id': step_to_move.id
         }
         return make_response(jsonify(resdata), 200)

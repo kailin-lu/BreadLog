@@ -58,6 +58,7 @@ class Step(db.Model):
     recipe_id: int
     step_number: int
     created_at: datetime
+    hours: int 
     minutes: int
     notes: str
     ingredients: list

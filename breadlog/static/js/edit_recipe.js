@@ -1,6 +1,7 @@
 // Scripts for adding ingredients on recipe edit page 
 document.addEventListener('DOMContentLoaded', function() {
-    var data, url; 
+    var data, url;
+    var steps = document.querySelectorAll('.recipe-step').length; 
 
     // Add new ingredient to step 
     document.querySelectorAll('.form-ingredient').forEach(item => {
@@ -40,6 +41,16 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('mouseenter', (e) => ingredientEnterEditHandler(e));
         item.addEventListener('mouseleave', (e) => ingredientLeaveEditHandler(e));
     });
+
+    // Move step down
+    document.querySelectorAll('.move-down').forEach(item => {
+        item.addEventListener('click', moveDownHandler);
+    }); 
+
+    // Move step up 
+    document.querySelectorAll('.move-up').forEach(item => {
+        item.addEventListener('click', moveUpHandler);
+    }); 
 });
 
 function postData(url = '', data = {}) {
@@ -131,12 +142,52 @@ function ingredientLeaveEditHandler(e) {
     }
 }
 
-function moveStepUp() {
-
+// Move steps up and down by post step number changes 
+function moveUpHandler() {
+    url = `${window.origin}/move_step_up/${this.dataset.stepid}`;
+    postData(url); 
 }
 
-function moveStepDown() {
+// Post step number changes after move down is clicked 
+function moveDownHandler() {
+    url = `${window.origin}/move_step_down/${this.dataset.stepid}`;
+    postData(url);
+}
 
+// Move steps in page after move up is posted 
+function moveStepUp(data) {
+    // Move step up div up above step down div 
+    let stepToMoveUp = document.getElementById(`step-${data['step_id']}`);
+    let stepToMoveDown = document.getElementById(`step-${data['shifted_step_id']}`);
+
+    stepToMoveDown.parentNode.insertBefore(stepToMoveUp, stepToMoveDown);
+    
+    //  Change step number label on step to move up
+    let upStepNum = stepToMoveUp.querySelector('h3'); 
+    upStepNum.setAttribute('data-stepnum', upStepNum.dataset.stepnum - 1); 
+    upStepNum.innerText = upStepNum.dataset.stepnum; 
+
+    // Change step number label on step to move down
+    let downStepNum = stepToMoveDown.querySelector('h3');
+    downStepNum.setAttribute('data-stepnum', parseInt(downStepNum.dataset.stepnum) + 1);
+    downStepNum.innerText = downStepNum.dataset.stepnum;
+}
+
+// Move steps in page after move down is posted
+function moveStepDown(data) {
+    // opposite of moveStepUp
+    let stepToMoveUp = document.getElementById(`step-${data['shifted_step_id']}`);
+    let stepToMoveDown = document.getElementById(`step-${data['step_id']}`);
+
+    stepToMoveDown.parentNode.insertBefore(stepToMoveUp, stepToMoveDown);
+    
+    let upStepNum = stepToMoveUp.querySelector('h3'); 
+    upStepNum.setAttribute('data-stepnum', upStepNum.dataset.stepnum - 1); 
+    upStepNum.innerText = upStepNum.dataset.stepnum; 
+
+    let downStepNum = stepToMoveDown.querySelector('h3');
+    downStepNum.setAttribute('data-stepnum', parseInt(downStepNum.dataset.stepnum) + 1);
+    downStepNum.innerText = downStepNum.dataset.stepnum;
 }
 
 // Insert new ingredient into step ingredient list 
@@ -149,9 +200,6 @@ function addIngredient(data) {
     
     let editCell = row.insertCell(2);
     editCell.classList.add('edit-col', 'placeholder-hide');
-
-    // let editIcon = document.createElement('i');
-    // editIcon.classList.add('fa', 'fa-edit', 'edit-col-icon', 'edit-step-ingredient');
     
     let deleteIcon = document.createElement('i');
     deleteIcon.classList.add('fa','fa-times', 'edit-col-icon', 'delete-step-ingredient');
@@ -189,7 +237,8 @@ function addStepToWindow(data) {
     const template = `<div class="col-12 recipe-step" id="step-${data['step_id']}" data-stepnum="${data['step_number']}">
                         <div class="row">
                             <div class="edit-button col-12">
-                                <button class="step-action move-up" data-stepid="{{ step.id }}"><i class="fa fa-chevron-up"></i></button>
+                                <button class="step-action move-up" data-stepid="${data['step_id']}"><i class="fa fa-chevron-up"></i></button>
+                                <button class="step-action move-down" data-stepid="${data['step_id']}"><i class="fa fa-chevron-up"></i></button>
                                 <button id="step-delete-${data['step_id']}" class="step-action step-delete" data-stepid="${data['step_id']}"><i class="fa fa-times"></i></button>
                             </div>
                         </div>
