@@ -59,13 +59,21 @@
         <a id="edit-link" class="title-edit" href="{{ url_for('edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
         <a id="delete-link" class="title-edit" href="{{ url_for('delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
         <hr>
-        <p id="total-time">Total Time: {{ hours }} hours {{ minutes }} minutes</p>
+
+        <div class="total-time">
+            <p class="inline" id="total-time">Total Time:</p>
+            <p class="inline" id="hours">{{ hours }}</p> 
+            <p class="inline">hours</p> 
+            <p class="inline" id="minutes">{{ minutes }}</p>
+            <p class="inline">minutes</p>
+        </div>
+        
         <p class="timing-notes" id="calculated-finish">If starting now, this recipe will finish at approximately 00:00 am</p> 
         
         <div class="start-time">
-            <p class="time-calculator">To finish at</p>
-            <input class="time-calculator" id="input-time" type="time", value="12:00">
-            <p class="time-calculator" id="calculated-start">start at 00:00 am</p> 
+            <p class="inline">To finish at</p>
+            <input class="inline" id="input-time" type="time", value="12:00">
+            <p class="inline" id="calculated-start">today start at 00:00 am</p> 
         </div>
         
         <div class="row">

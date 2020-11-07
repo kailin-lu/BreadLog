@@ -645,13 +645,21 @@ button.step-action:hover {
     text-align: center;
 }
 
-.time-calculator {
+.inline {
     display: inline-block;
+}
+
+.total-time {
+    margin: 0;
+    padding: 0; 
+    font-family: 'Raleway';
+    font-size: 1.2em;
 }
 
 .start-time {
     text-align: center;
 }
+
 
 #input-time {
     font-size: 1.5em;

@@ -2,6 +2,9 @@
 
 // Check that DOM has loaded and add onclick event for recipe names
 document.addEventListener('DOMContentLoaded', () => {
+    // Calculate finish time from now 
+    finishTime();
+
     var buttons = document.querySelectorAll('.box-recipe'); 
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].onclick = function() {
@@ -9,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
             displayRecipe(url); 
         }; 
     }
+
+    // Calculate start time from user input
+    let inputTimeEl = document.querySelector('#input-time');
+    startTime.call(inputTimeEl);
+    inputTimeEl.addEventListener('change', startTime); 
 }); 
 
 function displayRecipe(url) {
@@ -21,7 +29,13 @@ function displayRecipe(url) {
             let total_minutes = parseInt(resdata['total_minutes']); 
             let hours = parseInt(total_minutes / 60); 
             let minutes = total_minutes % 60; 
-            document.querySelector('#total-time').innerText = `Total Time: ${hours} hours ${minutes} minutes`;
+            document.querySelector('#hours').innerText = `${hours}`;
+            document.querySelector('#minutes').innerText = `${minutes}`;
+
+            // Recalculate start and finish times 
+            let inputTimeEl = document.querySelector('#input-time');
+            startTime.call(inputTimeEl);
+            finishTime(); 
 
             // Replace ingredients table 
             let ingredientTable = document.getElementById('ingredients-total-edit');  
@@ -50,7 +64,7 @@ function displayRecipe(url) {
             while (stepsDiv.firstChild) {
                 stepsDiv.removeChild(stepsDiv.firstChild);
             }
-            
+
             let stepCount = resdata['steps'].length; 
             if (stepCount === 0) {
                 stepsDiv.append('No steps have been added. Please edit recipe to add steps.');
@@ -63,6 +77,25 @@ function displayRecipe(url) {
             }
         }); 
     });
+}
+
+function finishTime() {
+    let hours = parseInt(document.querySelector('#hours').innerText);
+    let minutes = parseInt(document.querySelector('#minutes').innerText);
+    let now = dayjs(); 
+    let finish = now.add(hours, 'hours')
+    finish = finish.add(minutes, 'minutes'); 
+    document.querySelector('#calculated-finish').innerText = `If starting now, this recipe will finish on approximately ${finish.format('MMM-DD h:mm A')}`
+}
+
+
+function startTime() {
+    let val = this.value.split(':');
+    let hours = parseInt(val[0]); 
+    let minutes = parseInt(val[1]);
+    let start = dayjs().subtract(hours, 'hours'); 
+    start = start.subtract(minutes, 'minutes'); 
+    document.querySelector('#calculated-start').innerText = `today start at ${start.format('MMM-DD h:mm A')}`;
 }
 
 function buildStep(step, stepsDiv) { 
@@ -88,7 +121,6 @@ function addIngredients(step) {
             listEl.append(listItem);
         }
     })
-
 }
 
 // Aggregates ingredients 
@@ -114,6 +146,7 @@ function collectIngredients(steps) {
         }
     }
     for (key in ingredients) {
+        ingredients[key] = Number(ingredients[key]).toFixed(1);
         percents[key] = Number(ingredients[key]*100 / flourWeight).toFixed(1); 
     }
     return [ingredients, percents];
