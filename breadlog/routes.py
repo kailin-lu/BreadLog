@@ -2,10 +2,11 @@ import sys
 from collections import defaultdict
 from flask import render_template, url_for, request, redirect, flash, jsonify, make_response
 from breadlog import app, db, bcrypt
-from breadlog.models import Recipe, Step, User, StepIngredient, RecipeQuery
+from breadlog.models import Recipe, Step, User, StepIngredient
 from breadlog.forms import RecipeForm, StepForm, RegisterForm, LoginForm, AddIngredientForm
 from flask_login import login_user, current_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import or_
 
 
 def make_err_response(e): 
@@ -65,8 +66,10 @@ def login():
 def recipes():
     form = RecipeForm()
     user_id = current_user.id 
-    recipes = RecipeQuery.get_user_recipes_with_default(user_id)
+    default_user = User.query.filter_by(name='default').first() 
+    #recipes = Recipe.query.all() 
     # recipes = Recipe.query.filter_by(user_id=user_id).all()
+    recipes = Recipe.query.filter(or_(Recipe.user_id==user_id, Recipe.user_id==default_user.id)).all()
     
     if request.method == 'POST':
         if form.validate_on_submit():

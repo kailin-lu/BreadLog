@@ -40,13 +40,6 @@ class Recipe(db.Model):
         self.total_minutes = 0
         self.user_id = user_id
         
-        
-class RecipeQuery():
-    @staticmethod
-    def get_user_recipes_with_default(user_id, default_user_name='default'):
-        default_user = User.query.filter_by(name='default').first() 
-        return Recipe.query.filter(Recipe.user_id in [user_id, default_user.id]).order_by(Recipe.created_at).all()
-
 @dataclass
 class Step(db.Model):
     id: int

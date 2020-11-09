@@ -93,8 +93,14 @@ function startTime() {
     let val = this.value.split(':');
     let hours = parseInt(val[0]); 
     let minutes = parseInt(val[1]);
-    let start = dayjs().subtract(hours, 'hours'); 
-    start = start.subtract(minutes, 'minutes'); 
+    let start = dayjs(); 
+    start = start.set('hour', hours); 
+    start = start.set('minute', minutes); 
+
+    let recipeHours = parseInt(document.querySelector('#hours').innerText); 
+    let recipeMinutes = parseInt(document.querySelector('#minutes').innerText); 
+    start = start.subtract(recipeHours, 'hours'); 
+    start = start.subtract(recipeMinutes, 'minutes'); 
     document.querySelector('#calculated-start').innerText = `today start at ${start.format('MMM-DD h:mm A')}`;
 }
 
