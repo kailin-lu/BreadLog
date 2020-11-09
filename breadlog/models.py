@@ -43,14 +43,9 @@ class Recipe(db.Model):
         
 class RecipeQuery():
     @staticmethod
-    def get_user_recipes_with_default(user_id, default_user_id='276007fc-a00c-415f-b990-581541d92434'):
-        user_recipes = Recipe.query.filter_by(user_id=user_id).order_by(Recipe.created_at).all()
-        # if user_id != default_user_id: 
-        #     default_recipe = Recipe.query.filter_by(user_id=default_user_id).first() 
-        #     if default_recipe: 
-        #         user_recipes.append(default_recipe)
-        return user_recipes
-
+    def get_user_recipes_with_default(user_id, default_user_name='default'):
+        default_user = User.query.filter_by(name='default').first() 
+        return Recipe.query.filter(Recipe.user_id in [user_id, default_user.id]).order_by(Recipe.created_at).all()
 
 @dataclass
 class Step(db.Model):

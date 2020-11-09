@@ -64,18 +64,10 @@ def login():
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipes():
     form = RecipeForm()
-    user_id = current_user.id
-    recipes = Recipe.query.filter_by(user_id=user_id).all()
-    # recipes = RecipeQuery.get_user_recipes_with_default(user_id)    
-    if len(recipes) == 0:
-        return render_template('recipes.html', form=form, recipes=[], 
-                               hours=0, minutes=0, ingredients={})
+    user_id = current_user.id 
+    recipes = RecipeQuery.get_user_recipes_with_default(user_id)
+    # recipes = Recipe.query.filter_by(user_id=user_id).all()
     
-    # Time calculation for first recipe displayed if recipes exist
-    hours = recipes[0].total_minutes // 60 
-    minutes = recipes[0].total_minutes % 60 
-    ingredients = sum_recipe_ingredients(recipes[0])
-        
     if request.method == 'POST':
         if form.validate_on_submit():
             recipe_name = form.recipe_name.data
@@ -85,10 +77,20 @@ def recipes():
                 db.session.add(new_recipe)
                 db.session.commit()
                 return redirect(url_for('edit_recipe', recipe_id=new_recipe.id))
-            except:
-                return 'Something went wrong'
-    return render_template('recipes.html', form=form, recipes=recipes, 
-                           hours=hours, minutes=minutes,ingredients=ingredients)
+            except SQLAlchemyError as e:
+                return make_err_response(e)
+              
+    if len(recipes) == 0:
+        return render_template('recipes.html', form=form, recipes=[], 
+                               hours=0, minutes=0, ingredients={})
+    else: 
+        # Time calculation for first recipe displayed if recipes exist
+        hours = recipes[0].total_minutes // 60 
+        minutes = recipes[0].total_minutes % 60 
+        ingredients = sum_recipe_ingredients(recipes[0])
+            
+        return render_template('recipes.html', form=form, recipes=recipes, 
+                               hours=hours, minutes=minutes,ingredients=ingredients)
 
 
 @app.route('/recipes/edit/<int:recipe_id>', methods=['GET'])
