@@ -1,6 +1,7 @@
 from flask import Flask
 from breadlog.config import Config
 from .extensions import db, login_manager, bcrypt   
+from .commands import create_tables, seed_db 
 
 def create_app(config=Config):
     app = Flask(__name__)
@@ -20,6 +21,9 @@ def create_app(config=Config):
     app.register_blueprint(recipes) 
     app.register_blueprint(about)
     app.register_blueprint(errors) 
+    
+    app.cli.add_command(create_tables)
+    app.cli.add_command(seed_db)
     
     return app 
     
