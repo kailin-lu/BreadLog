@@ -13,7 +13,7 @@ def create_tables():
     
 @click.command(name='seed_db')
 @with_appcontext 
-def create_sample_recipe(): 
+def seed_db(): 
     sample_user = User('Sample', 'sample@domain.com', 'pw123')
     db.session.add(sample_user)
     db.session.commit() 
