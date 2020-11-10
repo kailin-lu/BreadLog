@@ -1,1 +1,1 @@
-web: gunicorn breadlog:app
+web: gunicorn wsgi:app
