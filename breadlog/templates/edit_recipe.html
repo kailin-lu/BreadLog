@@ -7,7 +7,7 @@
 
 {% block header %}
 <div class="content-title">
-    <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
+    <h1><a class="title" href="{{ url_for('about.index') }}">BREAD EXPERIMENT LOG</a></h1>
     <br>
     <h4>EDIT RECIPE</h4>
 </div>
@@ -129,7 +129,7 @@
 <!--Delete recipe-->
 <div class="row">
     <div class="col-12 delete-footer">
-        <a href="{{ url_for('recipes') }}">Back to Recipe Box</a> | <a href="/delete_recipe/{{ recipe.id }}">Delete this recipe</a>
+        <a href="{{ url_for('recipes.get_recipes') }}">Back to Recipe Box</a> | <a href="/delete_recipe/{{ recipe.id }}">Delete this recipe</a>
     </div>
 </div>
 

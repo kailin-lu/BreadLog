@@ -1,19 +1,25 @@
-import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy 
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from breadlog.config import Config
+from .extensions import db, login_manager, bcrypt   
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
-app.config['SECRET_KEY'] = os.environ['SQLALCHEMY_SECRET_KEY']
+def create_app(config=Config):
+    app = Flask(__name__)
+    app.config.from_object(config)
+    
+    db.init_app(app) 
+    login_manager.init_app(app)
+    login_manager.login_view = '__users.login__'
+    bcrypt.init_app(app) 
+    
+    from breadlog.users.routes import users 
+    from breadlog.recipes.routes import recipes 
+    from breadlog.about.routes import about 
+    from breadlog.errors.handlers import errors
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app) 
-login_manager = LoginManager(app) 
-
-from breadlog import routes 
-from breadlog import forms
-
-
-
+    app.register_blueprint(users) 
+    app.register_blueprint(recipes) 
+    app.register_blueprint(about)
+    app.register_blueprint(errors) 
+    
+    return app 
+    

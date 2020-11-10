@@ -22,14 +22,14 @@
         <nav class="sticky-nav">
             <ul>
                 {% if current_user.is_authenticated %} 
-                <li><a class="menu" href="{{ url_for('recipes') }}">RECIPE BOX</a></li>
+                <li><a class="menu" href="{{ url_for('recipes.get_recipes') }}">RECIPE BOX</a></li>
                 <span></span>
-                <li><a class="menu" href="{{ url_for('logout') }}">LOGOUT</a></li>
+                <li><a class="menu" href="{{ url_for('users.logout') }}">LOGOUT</a></li>
                 <span></span>
                 {% else %}
-                <li><a class="menu" href="{{ url_for('login') }}">LOGIN</a></li>
+                <li><a class="menu" href="{{ url_for('users.login') }}">LOGIN</a></li>
                 <span></span>
-                <li><a class="menu" href="{{ url_for('register') }}">REGISTER</a></li>
+                <li><a class="menu" href="{{ url_for('users.register') }}">REGISTER</a></li>
                 <span></span>
                 {% endif %}
             </ul>

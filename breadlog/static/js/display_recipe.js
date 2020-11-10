@@ -25,6 +25,21 @@ function displayRecipe(url) {
             // Replace Title 
             document.querySelector('#recipe-name').innerHTML = resdata['name'];
 
+            // Check if edit buttons should be displayed 
+            let sampleNote = document.querySelector('#sample-note'); 
+            let editLink = document.querySelector('#edit-link'); 
+            let deleteLink = document.querySelector('#delete-link'); 
+            if (resdata['name'] === "Sample Recipe") {
+                show.call(sampleNote); 
+                hide.call(editLink) 
+                hide.call(deleteLink); 
+            }
+            else {
+                hide.call(sampleNote); 
+                show.call(editLink); 
+                show.call(deleteLink); 
+            }
+
             // Replace total time 
             let total_minutes = parseInt(resdata['total_minutes']); 
             let hours = parseInt(total_minutes / 60); 
@@ -77,6 +92,16 @@ function displayRecipe(url) {
             }
         }); 
     });
+}
+
+function show() {
+    this.classList.add('placeholder-show');
+    this.classList.remove('placeholder-hide');
+}
+
+function hide() {
+    this.classList.add('placeholder-hide');
+    this.classList.remove('placeholder-show');   
 }
 
 function finishTime() {

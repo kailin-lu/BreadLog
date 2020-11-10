@@ -1,12 +1,12 @@
 from datetime import datetime
 from sqlalchemy.dialects.postgresql.base import UUID
-from breadlog import db, login_manager
+from .extensions import db, login_manager
 from flask_login import UserMixin
 from dataclasses import dataclass
 import uuid
 
-db.UUID = UUID
 
+db.UUID = UUID
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -74,8 +74,6 @@ class Ingredient(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Type as an enum
 
     def __init__(self, name):
         self.name = name

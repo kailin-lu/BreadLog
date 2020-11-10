@@ -8,7 +8,7 @@
 {% block header %} 
 {% if current_user.is_authenticated %} 
     <div class="content-title">
-        <h1><a class="title" href="{{ url_for('index') }}">BREAD EXPERIMENT LOG</a></h1>
+        <h1><a class="title" href="{{ url_for('about.index') }}">BREAD EXPERIMENT LOG</a></h1>
         <br>
         <h4>Welcome back, {{ current_user.name }}</h4>
     </div> 
@@ -56,8 +56,15 @@
         {% else %}
         <!--Show information for the first recipe-->
         <h1 id="recipe-name">{{ recipes[0].name }}</h1><span></span>
-        <a id="edit-link" class="title-edit" href="{{ url_for('edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
-        <a id="delete-link" class="title-edit" href="{{ url_for('delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
+        {% if recipes[0].name == 'Sample Recipe' %}
+        <a id="edit-link" class="title-edit placeholder-hide inline" href="{{ url_for('recipes.edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
+            <a id="delete-link" class="title-edit placeholder-hide inline" href="{{ url_for('recipes.delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
+            <p id="sample-note" class="placeholder-show inline">Sample recipes cannot be edited. To edit, please create a new recipe.</p>
+        {% else %}
+            <a id="edit-link" class="title-edit placeholder-show inline" href="{{ url_for('recipes.edit_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-edit"></i></a>
+            <a id="delete-link" class="title-edit placeholder-show inline" href="{{ url_for('recipes.delete_recipe', recipe_id=recipes[0].id) }}"><i class="fa fa-trash"></i></a>
+            <p id="sample-note" class="placeholder-hide inline">Sample recipes cannot be edited. To edit, please create a new recipe.</p>
+        {% endif %}
         <hr>
 
         <div class="total-time">

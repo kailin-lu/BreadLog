@@ -88,6 +88,11 @@ body, html {
     margin: 15px
 }
 
+a.title-edit {
+    color: #323A3B;
+}
+
+
 h1 {
     font-size: 28px;
     font-weight: 300; 
