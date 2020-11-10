@@ -1,7 +1,7 @@
 import click
 from flask.cli import with_appcontext 
 
-from .extensions import db     
+from .extensions import db, bcrypt 
 from .models import User, Recipe 
 
 
@@ -14,7 +14,8 @@ def create_tables():
 @click.command(name='seed_db')
 @with_appcontext 
 def seed_db(): 
-    sample_user = User('Sample', 'sample@domain.com', 'pw123')
+    hashed_pw = bcrypt.generate_password_hash('pw123').decode('utf-8')
+    sample_user = User('Sample', 'sample@domain.com', hashed_pw)
     db.session.add(sample_user)
     db.session.commit() 
     

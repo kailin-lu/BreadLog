@@ -13,7 +13,7 @@ recipes = Blueprint('recipes', __name__)
 def get_recipes():
     form = RecipeForm()
     user_id = current_user.id 
-    default_user = User.query.filter_by(name='default').first()
+    default_user = User.query.filter_by(name='Sample').first()
     recipe_list = Recipe.query.filter(or_(Recipe.user_id == user_id, Recipe.user_id == default_user.id)).order_by(Recipe.created_at).all()
     
     if request.method == 'POST':
