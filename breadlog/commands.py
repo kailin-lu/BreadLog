@@ -2,7 +2,7 @@ import click
 from flask.cli import with_appcontext 
 
 from .extensions import db, bcrypt 
-from .models import User, Recipe 
+from .models import User, Recipe, Step, StepIngredient
 
 
 @click.command(name='create_tables')
@@ -23,5 +23,5 @@ def seed_db():
     db.session.add(sample_recipe)
     db.session.commit() 
     
-    
-    
+    step1 = Step()
+    step2 = Step() 

@@ -25,10 +25,15 @@ function displayRecipe(url) {
             // Replace Title 
             document.querySelector('#recipe-name').innerHTML = resdata['name'];
 
-            // Check if edit buttons should be displayed 
             let sampleNote = document.querySelector('#sample-note'); 
             let editLink = document.querySelector('#edit-link'); 
             let deleteLink = document.querySelector('#delete-link'); 
+
+            // Replace link in edit and delete buttons 
+            editLink.setAttribute('href', `${window.origin}/recipes/edit/${resdata['id']}`); 
+            deleteLink.setAttribute('href', `${window.origin}/delete_recipe/${resdata['id']}`)
+
+            // Check if edit buttons should be displayed 
             if (resdata['name'] === "Sample Recipe") {
                 show.call(sampleNote); 
                 hide.call(editLink) 
@@ -53,7 +58,7 @@ function displayRecipe(url) {
             finishTime(); 
 
             // Replace ingredients table 
-            let ingredientTable = document.getElementById('ingredients-total-edit');  
+            let ingredientTable = document.getElementById('ingredients-total-edit'); 
             let rows = ingredientTable.rows.length;
             for (i = 1; i < rows; i++) {
                 ingredientTable.deleteRow(-1);
@@ -130,6 +135,9 @@ function startTime() {
 }
 
 function buildStep(step, stepsDiv) { 
+    // Hide note to add steps 
+    document.querySelector('#note-add-steps').classList.add('placeholder-hide'); 
+    // Add step to window 
     const template = `<div class="display-step" id="display-step-${step['id']}">
                     <h1 class="display-stepnum">${step['step_number']}</h1>
                     <h5 class="display-time">TIME: ${step['hours']} HOURS ${step['minutes']} MINUTES</h5>
