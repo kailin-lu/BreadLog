@@ -234,11 +234,13 @@ function removeStepFromWindow(data) {
 }
 
 function addStepToWindow(data) {
+    document.querySelector('#note-add-steps').classList.add('placeholder-hide'); 
+    
     const template = `<div class="col-12 recipe-step" id="step-${data['step_id']}" data-stepnum="${data['step_number']}">
                         <div class="row">
                             <div class="edit-button col-12">
                                 <button class="step-action move-up" data-stepid="${data['step_id']}"><i class="fa fa-chevron-up"></i></button>
-                                <button class="step-action move-down" data-stepid="${data['step_id']}"><i class="fa fa-chevron-up"></i></button>
+                                <button class="step-action move-down" data-stepid="${data['step_id']}"><i class="fa fa-chevron-down"></i></button>
                                 <button id="step-delete-${data['step_id']}" class="step-action step-delete" data-stepid="${data['step_id']}"><i class="fa fa-times"></i></button>
                             </div>
                         </div>
