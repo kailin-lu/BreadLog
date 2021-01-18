@@ -136,7 +136,7 @@ function startTime() {
 
 function buildStep(step, stepsDiv) { 
     // Hide note to add steps 
-    document.querySelector('#note-add-steps').classList.add('placeholder-hide'); 
+    // document.querySelector('#note-add-steps').classList.add('placeholder-hide'); 
     // Add step to window 
     const template = `<div class="display-step" id="display-step-${step['id']}">
                     <h1 class="display-stepnum">${step['step_number']}</h1>
